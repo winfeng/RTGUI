@@ -29,7 +29,7 @@
 static rtgui_rect_t _mainwin_rect;
 static struct rt_mutex _screen_lock;
 
-void rtgui_system_server_init()
+int rtgui_system_server_init(void)
 {
     rt_mutex_init(&_screen_lock, "screen", RT_IPC_FLAG_FIFO);
 
@@ -50,7 +50,9 @@ void rtgui_system_server_init()
 
     /* init theme */
     rtgui_system_theme_init();
+    return 0;
 }
+INIT_APP_EXPORT(rtgui_system_server_init);
 
 /************************************************************************/
 /* RTGUI Timer                                                          */

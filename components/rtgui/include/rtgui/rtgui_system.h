@@ -44,7 +44,7 @@ void rtgui_timer_start(rtgui_timer_t *timer);
 void rtgui_timer_stop(rtgui_timer_t *timer);
 
 /* rtgui system initialization function */
-void rtgui_system_server_init(void);
+int rtgui_system_server_init(void);
 
 void *rtgui_malloc(rt_size_t size);
 void rtgui_free(void *ptr);
