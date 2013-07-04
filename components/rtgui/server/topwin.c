@@ -1061,8 +1061,6 @@ rt_err_t rtgui_topwin_modal_enter(struct rtgui_event_win_modal_enter *event)
 
 void rtgui_topwin_title_onmouse(struct rtgui_topwin *win, struct rtgui_event_mouse *event)
 {
-    rtgui_rect_t rect;
-
     /* let window to process this mouse event */
     if (rtgui_rect_contains_point(&win->extent, event->x, event->y) == RT_EOK)
     {
@@ -1071,34 +1069,36 @@ void rtgui_topwin_title_onmouse(struct rtgui_topwin *win, struct rtgui_event_mou
         return;
     }
 
-    /* get close button rect (device value) */
-    rect.x1 = RTGUI_WIDGET(win->title)->extent.x2 - WINTITLE_BORDER_SIZE - WINTITLE_CB_WIDTH - 3;
-    rect.y1 = RTGUI_WIDGET(win->title)->extent.y1 + WINTITLE_BORDER_SIZE + 3;
-    rect.x2 = rect.x1 + WINTITLE_CB_WIDTH;
-    rect.y2 = rect.y1 + WINTITLE_CB_HEIGHT;
-
-    if (event->button & RTGUI_MOUSE_BUTTON_LEFT)
+    if (win->flag & WINTITLE_CLOSEBOX)
     {
-        if (event->button & RTGUI_MOUSE_BUTTON_DOWN)
+        rtgui_rect_t rect;
+
+        /* get close button rect (device value) */
+        rect.x1 = RTGUI_WIDGET(win->title)->extent.x2 - WINTITLE_BORDER_SIZE - WINTITLE_CB_WIDTH - 3;
+        rect.y1 = RTGUI_WIDGET(win->title)->extent.y1 + WINTITLE_BORDER_SIZE + 3;
+        rect.x2 = rect.x1 + WINTITLE_CB_WIDTH;
+        rect.y2 = rect.y1 + WINTITLE_CB_HEIGHT;
+
+        if (event->button & RTGUI_MOUSE_BUTTON_LEFT)
         {
-            if (rtgui_rect_contains_point(&rect, event->x, event->y) == RT_EOK)
+            if (event->button & RTGUI_MOUSE_BUTTON_DOWN)
             {
-                win->flag |= WINTITLE_CB_PRESSED;
-                rtgui_theme_draw_win(win);
-            }
+                if (rtgui_rect_contains_point(&rect, event->x, event->y) == RT_EOK)
+                {
+                    win->flag |= WINTITLE_CB_PRESSED;
+                    rtgui_theme_draw_win(win);
+                }
 #ifdef RTGUI_USING_WINMOVE
-            else
-            {
-                /* maybe move window */
-                rtgui_winrect_set(win);
-            }
+                else
+                {
+                    /* maybe move window */
+                    rtgui_winrect_set(win);
+                }
 #endif
-        }
-        else if (win->flag & WINTITLE_CB_PRESSED &&
-                 event->button & RTGUI_MOUSE_BUTTON_UP &&
-                 win->flag & WINTITLE_CLOSEBOX)
-        {
-            if (rtgui_rect_contains_point(&rect, event->x, event->y) == RT_EOK)
+            }
+            else if (win->flag & WINTITLE_CB_PRESSED &&
+                     event->button & RTGUI_MOUSE_BUTTON_UP &&
+                     rtgui_rect_contains_point(&rect, event->x, event->y) == RT_EOK)
             {
                 struct rtgui_event_win event;
 
@@ -1111,6 +1111,13 @@ void rtgui_topwin_title_onmouse(struct rtgui_topwin *win, struct rtgui_event_mou
                 rtgui_send(win->app, &(event.parent), sizeof(struct rtgui_event_win));
             }
         }
+    }
+    else if (event->button & RTGUI_MOUSE_BUTTON_DOWN)
+    {
+#ifdef RTGUI_USING_WINMOVE
+        /* maybe move window */
+        rtgui_winrect_set(win);
+#endif
     }
 }
 
