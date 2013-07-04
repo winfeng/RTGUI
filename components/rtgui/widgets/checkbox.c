@@ -133,11 +133,17 @@ void rtgui_checkbox_destroy(rtgui_checkbox_t *box)
 void rtgui_checkbox_set_checked(rtgui_checkbox_t *checkbox, rt_bool_t checked)
 {
     RT_ASSERT(checkbox != RT_NULL);
-    if (checked == RT_TRUE)
+    if (checked == RT_TRUE &&
+        checkbox->status_down == RTGUI_CHECKBOX_STATUS_UNCHECKED)
+    {
         checkbox->status_down = RTGUI_CHECKBOX_STATUS_CHECKED;
-    else
+        rtgui_widget_update(RTGUI_WIDGET(checkbox));
+    }
+    else if (checkbox->status_down == RTGUI_CHECKBOX_STATUS_CHECKED)
+    {
         checkbox->status_down = RTGUI_CHECKBOX_STATUS_UNCHECKED;
-
+        rtgui_widget_update(RTGUI_WIDGET(checkbox));
+    }
 }
 
 rt_bool_t rtgui_checkbox_get_checked(rtgui_checkbox_t *checkbox)
