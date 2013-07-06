@@ -31,7 +31,6 @@ static void _rtgui_app_constructor(struct rtgui_app *app)
     app->exit_code      = 0;
     app->tid            = RT_NULL;
     app->mq             = RT_NULL;
-    app->modal_object   = RT_NULL;
     app->main_object    = RT_NULL;
     app->on_idle        = RT_NULL;
 }
@@ -229,12 +228,6 @@ rt_bool_t rtgui_app_event_handler(struct rtgui_object *object, rtgui_event_t *ev
         if (app->main_object != RT_NULL)
         {
             rtgui_win_activate(RTGUI_WIN(app->main_object));
-            if (app->modal_object != RT_NULL)
-                rtgui_win_activate(RTGUI_WIN(app->modal_object));
-        }
-        else if (app->modal_object != RT_NULL)
-        {
-            rtgui_win_activate(RTGUI_WIN(app->modal_object));
         }
         break;
 

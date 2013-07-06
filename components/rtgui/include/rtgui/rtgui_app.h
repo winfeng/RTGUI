@@ -57,9 +57,9 @@ struct rtgui_app
     /* event buffer */
     rt_uint8_t event_buffer[sizeof(union rtgui_event_generic)];
 
-    /* if not RT_NULL, the application is in modal state by modal_object. If is
-     * RT_NULL, nothing modal windows. */
-    struct rtgui_object *modal_object;
+    /* if not RT_NULL, the main_object is the one will be activated when the
+     * app recieves activate event. By default, it is the first window shown in
+     * the app. */
     struct rtgui_object *main_object;
 
     /* on idle event handler */

@@ -297,11 +297,7 @@ rt_base_t rtgui_win_show(struct rtgui_win *win, rt_bool_t is_modal)
                                          sizeof(emodal)) != RT_EOK)
             return exit_code;
 
-        app->modal_object = RTGUI_OBJECT(win);
-
         exit_code = rtgui_app_run(app);
-
-        app->modal_object = RT_NULL;
         win->flag &= ~RTGUI_WIN_FLAG_MODAL;
 
         if (win->style & RTGUI_WIN_STYLE_DESTROY_ON_CLOSE)
