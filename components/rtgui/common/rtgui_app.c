@@ -214,6 +214,8 @@ rt_bool_t rtgui_app_event_handler(struct rtgui_object *object, rtgui_event_t *ev
     switch (event->type)
     {
     case RTGUI_EVENT_PAINT:
+    case RTGUI_EVENT_MOUSE_BUTTON:
+    case RTGUI_EVENT_MOUSE_MOTION:
     case RTGUI_EVENT_CLIP_INFO:
     case RTGUI_EVENT_WIN_ACTIVATE:
     case RTGUI_EVENT_WIN_DEACTIVATE:
@@ -239,27 +241,6 @@ rt_bool_t rtgui_app_event_handler(struct rtgui_object *object, rtgui_event_t *ev
     case RTGUI_EVENT_APP_DESTROY:
         rtgui_app_exit(app, 0);
         break;
-
-    case RTGUI_EVENT_MOUSE_BUTTON:
-    case RTGUI_EVENT_MOUSE_MOTION:
-    {
-        struct rtgui_event_win *wevent = (struct rtgui_event_win *)event;
-        struct rtgui_object *dest_object = RTGUI_OBJECT(wevent->wid);
-
-        // FIXME: let application determine the dest_wiget but not in sever
-        // so we can combine this handler with above one
-        if (app->modal_object != RT_NULL &&
-                dest_object != app->modal_object)
-        {
-//              rt_kprintf("discard event %s that is not sent to modal object\n",
-//                         event_string[event->type]);
-        }
-        else
-        {
-            _rtgui_application_dest_handle(app, event);
-        }
-    }
-    break;
 
     case RTGUI_EVENT_TIMER:
     {
