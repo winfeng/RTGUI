@@ -62,7 +62,6 @@ static void _rtgui_textbox_constructor(rtgui_textbox_t *box)
             + RTGUI_WIDGET_DEFAULT_MARGIN /* there is a margin in the beginning
                                              of the text. */
             );
-	box->font_width = rtgui_rect_width(rect);
 	box->on_enter = RT_NULL;
 	box->dis_length = 0;
 	box->first_pos = 0;
@@ -104,6 +103,7 @@ static void rtgui_textbox_get_caret_rect(rtgui_textbox_t *box, rtgui_rect_t *rec
 
 	rtgui_font_get_metrics(RTGUI_WIDGET_FONT(box), "H", &item_rect);
 	font_h = rtgui_rect_height(item_rect);
+    box->font_width = rtgui_rect_width(item_rect);
 	box_h = rtgui_rect_height(*rect);
 
 	rect->x1 += position * box->font_width + 2;
