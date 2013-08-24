@@ -525,8 +525,7 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
          */
         _rtgui_topwin_raise_tree_from_root(topwin);
         rtgui_topwin_update_clip();
-        _rtgui_topwin_draw_tree(
-                _rtgui_topwin_get_root_win(topwin), &epaint);
+        _rtgui_topwin_draw_tree(topwin, &epaint);
         return RT_EOK;
     }
 
@@ -551,8 +550,7 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
 
     _rtgui_topwin_only_activate(topwin);
 
-    _rtgui_topwin_draw_tree(
-            _rtgui_topwin_get_root_win(topwin), &epaint);
+    _rtgui_topwin_draw_tree(topwin, &epaint);
 
     return RT_EOK;
 }
