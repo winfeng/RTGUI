@@ -489,6 +489,13 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 {
     struct rtgui_dlist_node *node;
 
+    rtgui_dlist_foreach(node, &topwin->child_list, prev)
+    {
+        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
+            break;
+        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
+    }
+
     if (topwin->title != RT_NULL)
     {
         rtgui_theme_draw_win(topwin);
@@ -496,13 +503,6 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 
     epaint->wid = topwin->wid;
     rtgui_send(topwin->app, &(epaint->parent), sizeof(*epaint));
-
-    rtgui_dlist_foreach(node, &topwin->child_list, prev)
-    {
-        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
-            return;
-        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
-    }
 }
 
 rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
