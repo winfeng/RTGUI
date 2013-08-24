@@ -62,6 +62,7 @@ static void _rtgui_textbox_constructor(rtgui_textbox_t *box)
             + RTGUI_WIDGET_DEFAULT_MARGIN /* there is a margin in the beginning
                                              of the text. */
             );
+    box->font_width = rtgui_rect_width(rect);
 	box->on_enter = RT_NULL;
 	box->dis_length = 0;
 	box->first_pos = 0;
