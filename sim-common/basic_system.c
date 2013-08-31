@@ -24,9 +24,15 @@ static void rt_basic_system_entry(void *parameter)
     pcap_netif_hw_init();
 #endif
 
-    /* initialization RT-Thread Components */
     rt_platform_init();
+    /* initialization RT-Thread Components */
     rt_components_init();
+
+#ifdef RT_USING_RTGUI
+    /* start sdl thread to simulate an LCD. SDL may depend on DFS and should
+     * be called after rt_components_init. */
+    rt_hw_sdl_start();
+#endif /* RT_USING_RTGUI */
 
     /* File system Initialization */
 #ifdef RT_USING_DFS
