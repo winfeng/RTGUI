@@ -1,6 +1,8 @@
 #include <rtthread.h>
 #include "board.h"
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 void rt_platform_init(void)
 {
