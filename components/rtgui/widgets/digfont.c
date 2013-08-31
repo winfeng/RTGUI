@@ -24,7 +24,6 @@ int rtgui_digitfont_create(struct rtgui_digitfont * font)
 {
     int i;
     int half;
-    int space;
     int seg35_y;
     int hight;
     struct rtgui_digitfont_data * data, *databuf;
@@ -40,7 +39,6 @@ int rtgui_digitfont_create(struct rtgui_digitfont * font)
 
     data = &temp;
     half = font->seg1_nr >> 1;
-    space = font->seg1_hspace;
     seg35_y = font->seg1_vspace + font->seg2_len + (half<<1) - font->seg1_vspace;
     hight = (font->seg1_vspace << 1) + font->seg2_len + font->seg3_len + (half << 1) - 1;
 
@@ -199,6 +197,8 @@ int rtgui_dc_draw_digitfont(struct rtgui_dc *dc, struct rtgui_digitfont * font, 
 
         data++;
     }
+	
+	return 0;
 }
 
 const char digtube_code_table[] =

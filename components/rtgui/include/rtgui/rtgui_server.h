@@ -22,6 +22,7 @@
 /* top window definitions in server */
 enum rtgui_topwin_flag
 {
+	WINTITLE_INIT   	=  0x00,
     WINTITLE_NO         =  0x01,
     WINTITLE_BORDER     =  0x02,
     WINTITLE_ACTIVATE   =  0x04,

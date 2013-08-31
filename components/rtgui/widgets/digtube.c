@@ -14,6 +14,7 @@
 
 #include <rtgui/dc.h>
 #include <rtgui/widgets/digtube.h>
+#include <rtgui/rtgui_theme.h>
 
 static void _rtgui_digtube_constructor(struct rtgui_digtube * digtube)
 {

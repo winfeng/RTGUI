@@ -123,7 +123,7 @@ rt_err_t rtgui_topwin_add(struct rtgui_event_win_create *event)
 
     rtgui_dlist_init(&topwin->child_list);
 
-    topwin->flag = 0;
+    topwin->flag = WINTITLE_INIT;
     if (event->parent.user & RTGUI_WIN_STYLE_NO_TITLE) topwin->flag |= WINTITLE_NO;
     if (event->parent.user & RTGUI_WIN_STYLE_CLOSEBOX) topwin->flag |= WINTITLE_CLOSEBOX;
     if (!(event->parent.user & RTGUI_WIN_STYLE_NO_BORDER)) topwin->flag |= WINTITLE_BORDER;
@@ -402,8 +402,8 @@ static void _rtgui_topwin_move_whole_tree2top(struct rtgui_topwin *topwin)
     else if (topwin->flag & WINTITLE_ONBTM)
     {
         /* botton layer window, before the fisrt bottom window or hidden window. */
-        struct rtgui_topwin *ntopwin = get_topwin_from_list(&_rtgui_topwin_list);
         struct rtgui_dlist_node *node;
+        struct rtgui_topwin *ntopwin;
 
         rtgui_dlist_foreach(node, &_rtgui_topwin_list, next)
         {
@@ -422,7 +422,7 @@ static void _rtgui_topwin_move_whole_tree2top(struct rtgui_topwin *topwin)
     else
     {
         /* normal layer window, before the fisrt shown normal layer window. */
-        struct rtgui_topwin *ntopwin = get_topwin_from_list(&_rtgui_topwin_list);
+        struct rtgui_topwin *ntopwin;
         struct rtgui_dlist_node *node;
 
         rtgui_dlist_foreach(node, &_rtgui_topwin_list, next)
@@ -489,13 +489,6 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 {
     struct rtgui_dlist_node *node;
 
-    rtgui_dlist_foreach(node, &topwin->child_list, prev)
-    {
-        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
-            break;
-        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
-    }
-
     if (topwin->title != RT_NULL)
     {
         rtgui_theme_draw_win(topwin);
@@ -503,6 +496,13 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 
     epaint->wid = topwin->wid;
     rtgui_send(topwin->app, &(epaint->parent), sizeof(*epaint));
+
+    rtgui_dlist_foreach(node, &topwin->child_list, prev)
+    {
+        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
+            return;
+        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
+    }
 }
 
 rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
@@ -526,12 +526,7 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
         _rtgui_topwin_raise_tree_from_root(topwin);
         rtgui_topwin_update_clip();
         _rtgui_topwin_draw_tree(
-#ifdef RTGUI_ONLY_ONE_WINDOW_TREE
-                topwin,
-#else
-                _rtgui_topwin_get_root_win(topwin),
-#endif
-                &epaint);
+                _rtgui_topwin_get_root_win(topwin), &epaint);
         return RT_EOK;
     }
 
@@ -557,12 +552,7 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
     _rtgui_topwin_only_activate(topwin);
 
     _rtgui_topwin_draw_tree(
-#ifdef RTGUI_ONLY_ONE_WINDOW_TREE
-                topwin,
-#else
-                _rtgui_topwin_get_root_win(topwin),
-#endif
-                &epaint);
+            _rtgui_topwin_get_root_win(topwin), &epaint);
 
     return RT_EOK;
 }
@@ -937,7 +927,7 @@ static void rtgui_topwin_update_clip(void)
     top = _rtgui_topwin_get_topmost_window_shown(WINTITLE_ONTOP);
     /* 0 is normal layer */
     if (top == RT_NULL)
-        top = _rtgui_topwin_get_topmost_window_shown(0);
+        top = _rtgui_topwin_get_topmost_window_shown(WINTITLE_INIT);
     if (top == RT_NULL)
         top = _rtgui_topwin_get_topmost_window_shown(WINTITLE_ONBTM);
 
