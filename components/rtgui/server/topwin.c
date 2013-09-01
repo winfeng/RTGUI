@@ -21,6 +21,7 @@
 #include <rtgui/rtgui_system.h>
 #include <rtgui/rtgui_app.h>
 #include <rtgui/widgets/window.h>
+#include <rtgui/widgets/container.h>
 
 /* This list is divided into two parts. The first part is the shown list, in
  * which all the windows have the WINTITLE_SHOWN flag set. Second part is the
@@ -1163,6 +1164,68 @@ void rtgui_topwin_remove_monitor_rect(struct rtgui_win *wid, rtgui_rect_t *rect)
     /* remove rect from top window monitor rect list */
     rtgui_mouse_monitor_remove(&(win->monitor_list), rect);
 }
+
+static struct rtgui_object* _get_obj_in_topwin(struct rtgui_topwin *topwin,
+                                               struct rtgui_app *app,
+                                               rt_uint32_t id)
+{
+    struct rtgui_object *object;
+    struct rtgui_dlist_node *node;
+
+    object = RTGUI_OBJECT(topwin->wid);
+    if (object->id == id)
+        return object;
+
+    object = rtgui_container_get_object(RTGUI_CONTAINER(object), id);
+    if (object)
+        return object;
+
+    rtgui_dlist_foreach(node, &topwin->child_list, next)
+    {
+        struct rtgui_topwin *topwin;
+
+        topwin = get_topwin_from_list(node);
+        if (topwin->app != app)
+            continue;
+
+        object = _get_obj_in_topwin(topwin, app, id);
+        if (object)
+            return object;
+    }
+
+    return RT_NULL;
+}
+
+struct rtgui_object* rtgui_get_object(struct rtgui_app *app, rt_uint32_t id)
+{
+    struct rtgui_object *object;
+    struct rtgui_dlist_node *node;
+
+    object = RTGUI_OBJECT(app);
+    if (object->id == id)
+        return object;
+
+    rtgui_dlist_foreach(node, &_rtgui_topwin_list, next)
+    {
+        struct rtgui_topwin *topwin;
+
+        topwin = get_topwin_from_list(node);
+        if (topwin->app != app)
+            continue;
+
+        object = _get_obj_in_topwin(topwin, app, id);
+        if (object)
+            return object;
+    }
+    return RT_NULL;
+}
+RTM_EXPORT(rtgui_get_object);
+
+struct rtgui_object* rtgui_get_self_object(rt_uint32_t id)
+{
+    return rtgui_get_object(rtgui_app_self(), id);
+}
+RTM_EXPORT(rtgui_get_self_object);
 
 static void _rtgui_topwin_dump(struct rtgui_topwin *topwin)
 {
