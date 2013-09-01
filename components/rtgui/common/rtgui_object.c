@@ -207,6 +207,11 @@ RTM_EXPORT(rtgui_object_event_handler);
 
 void rtgui_object_set_id(struct rtgui_object *object, rt_uint32_t id)
 {
+#ifdef RTGUI_USING_ID_CHECK
+    struct rtgui_object *obj = rtgui_get_self_object(id);
+    RT_ASSERT(!obj);
+#endif
+
     object->id = id;
 }
 RTM_EXPORT(rtgui_object_set_id);
