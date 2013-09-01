@@ -12,14 +12,18 @@
 #include "demo_view.h"
 #include <string.h>
 
+enum {
+    NORMAL_WIN_ID,
+    NORMAL_WIN_LABEL_ID,
+
+    AUTO_CLOSE_LABEL_ID,
+};
+
 static struct rtgui_timer *timer;
-static struct rtgui_label *label;
 static struct rtgui_win *autowin = RT_NULL;
 static char label_text[80];
 static rt_uint8_t cnt = 5;
 
-rtgui_win_t *normal_window;
-rtgui_label_t *normal_window_label;
 static char normal_window_label_text[16];
 static unsigned char normal_window_show_count = 1;
 extern struct rtgui_win *main_win;
@@ -34,10 +38,13 @@ static rt_bool_t normal_window_onclose(struct rtgui_object *win,
 
 static void create_normal_win(void)
 {
+    struct rtgui_win   *normal_window;
+    struct rtgui_label *label;
     rtgui_rect_t rect = {30, 40, 150, 80};
 
     normal_window = rtgui_win_create(RT_NULL, "普通窗口",
                                      &rect, RTGUI_WIN_STYLE_DEFAULT);
+    rtgui_object_set_id(RTGUI_OBJECT(normal_window), NORMAL_WIN_ID);
 
     rect.x1 += 20;
     rect.x2 -= 5;
@@ -47,10 +54,11 @@ static void create_normal_win(void)
     /* 添加一个文本标签 */
     rt_sprintf(normal_window_label_text,
                "第 %d 次显示", normal_window_show_count);
-    normal_window_label = rtgui_label_create(normal_window_label_text);
-    rtgui_widget_set_rect(RTGUI_WIDGET(normal_window_label), &rect);
+    label = rtgui_label_create(normal_window_label_text);
+    rtgui_widget_set_rect(RTGUI_WIDGET(label), &rect);
     rtgui_container_add_child(RTGUI_CONTAINER(normal_window),
-                              RTGUI_WIDGET(normal_window_label));
+                              RTGUI_WIDGET(label));
+    rtgui_object_set_id(RTGUI_OBJECT(label), NORMAL_WIN_LABEL_ID);
 
     rtgui_win_set_onclose(normal_window,
                           normal_window_onclose);
@@ -59,14 +67,21 @@ static void create_normal_win(void)
 /* 触发正常窗口显示 */
 static void demo_normal_window_onbutton(struct rtgui_object *object, rtgui_event_t *event)
 {
+    static struct rtgui_win *win;
+    static struct rtgui_label *label;
+
+    if (label == RT_NULL)
+        label = RTGUI_LABEL(rtgui_get_object(rtgui_app_self(), NORMAL_WIN_LABEL_ID));
+    if (win == RT_NULL)
+        win = RTGUI_WIN(rtgui_get_object(rtgui_app_self(), NORMAL_WIN_ID));
+
     rt_sprintf(normal_window_label_text,
                "第 %d 次显示", normal_window_show_count);
-    rtgui_label_set_text(normal_window_label,
-                         normal_window_label_text);
-    if (RTGUI_WIDGET_IS_HIDE(normal_window))
-        rtgui_win_show(normal_window, RT_FALSE);
+    rtgui_label_set_text(label, normal_window_label_text);
+    if (RTGUI_WIDGET_IS_HIDE(win))
+        rtgui_win_show(win, RT_FALSE);
     else
-        rtgui_win_activate(normal_window);
+        rtgui_win_activate(win);
 }
 
 /* 获取一个递增的窗口标题 */
@@ -82,6 +97,11 @@ static char *get_win_title()
 /* 关闭对话框时的回调函数 */
 void diag_close(struct rtgui_timer *timer, void *parameter)
 {
+    struct rtgui_label *label;
+
+    /* don't cache the label because it is dynamically created */
+    label = RTGUI_LABEL(rtgui_get_self_object(AUTO_CLOSE_LABEL_ID));
+
     cnt --;
     rt_sprintf(label_text, "closed then %d second!", cnt);
 
@@ -118,6 +138,7 @@ static rt_uint16_t delta_y = 40;
 /* 触发自动窗口显示 */
 static void demo_autowin_onbutton(struct rtgui_object *object, rtgui_event_t *event)
 {
+    struct rtgui_label *label;
     struct rtgui_rect rect = {50, 50, 200, 200};
 
     /* don't create the window twice */
@@ -139,6 +160,7 @@ static void demo_autowin_onbutton(struct rtgui_object *object, rtgui_event_t *ev
     rtgui_widget_set_rect(RTGUI_WIDGET(label), &rect);
     rtgui_container_add_child(RTGUI_CONTAINER(autowin),
                               RTGUI_WIDGET(label));
+    rtgui_object_set_id(RTGUI_OBJECT(label), AUTO_CLOSE_LABEL_ID);
 
     /* 设置关闭窗口时的动作 */
     rtgui_win_set_onclose(autowin, auto_window_close);
