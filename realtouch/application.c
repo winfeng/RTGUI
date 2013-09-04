@@ -20,7 +20,5 @@ void rt_application_init(void)
 
     if (tid != RT_NULL)
         rt_thread_startup(tid);
-
-    return 0;
 }
 
