@@ -19,6 +19,11 @@
 #include <rtgui/driver.h>
 #include <rtgui/widgets/widget.h>
 
+#define RTGUI_BLENDMODE_NONE    0x00
+#define RTGUI_BLENDMODE_BLEND   0x01
+#define RTGUI_BLENDMODE_ADD     0x02
+#define RTGUI_BLENDMODE_MOD     0x03
+
 enum rtgui_dc_type
 {
     RTGUI_DC_HW,
@@ -68,6 +73,28 @@ struct rtgui_dc_hw
 	const struct rtgui_graphic_driver *hw_driver;
 };
 
+struct rtgui_dc_buffer
+{
+	struct rtgui_dc parent;
+
+	/* graphic context */
+	rtgui_gc_t gc;
+
+	/* pixel format */
+	rt_uint8_t pixel_format;
+	rt_uint8_t blend_mode;
+
+	/* width and height */
+	rt_uint16_t width, height;
+	rt_uint16_t pitch;
+
+	/* blit info */
+	rtgui_region_t clip;
+
+	/* pixel data */
+	rt_uint8_t *pixel;
+};
+
 #define RTGUI_DC_FC(dc)         (rtgui_dc_get_gc(dc)->foreground)
 #define RTGUI_DC_BC(dc)         (rtgui_dc_get_gc(dc)->background)
 #define RTGUI_DC_FONT(dc)       (rtgui_dc_get_gc(dc)->font)
@@ -115,6 +142,19 @@ void rtgui_dc_draw_arc(struct rtgui_dc *dc, rt_int16_t x, rt_int16_t y, rt_int16
 
 void rtgui_dc_draw_ellipse(struct rtgui_dc *dc, rt_int16_t x, rt_int16_t y, rt_int16_t rx, rt_int16_t ry);
 void rtgui_dc_fill_ellipse(struct rtgui_dc *dc, rt_int16_t x, rt_int16_t y, rt_int16_t rx, rt_int16_t ry);
+
+/* alpha blending functions */
+void rtgui_dc_draw_aa_line(struct rtgui_dc * dst,int x1,int y1,int x2,int y2);
+void rtgui_dc_draw_aa_lines(struct rtgui_dc * dst,const struct rtgui_point * points,int count);
+
+void rtgui_dc_blend_point(struct rtgui_dc * dst,int x,int y,enum RTGUI_BLENDMODE blendMode,rt_uint8_t r,rt_uint8_t g,rt_uint8_t b,rt_uint8_t a);
+void rtgui_dc_blend_points(struct rtgui_dc * dst,const rtgui_point_t * points,int count,enum RTGUI_BLENDMODE blendMode,rt_uint8_t r,rt_uint8_t g,rt_uint8_t b,rt_uint8_t a);
+
+void rtgui_dc_blend_line(struct rtgui_dc * dst,int x1,int y1,int x2,int y2,enum RTGUI_BLENDMODE blendMode,rtgui_color_t color);
+void rtgui_dc_blend_lines(struct rtgui_dc * dst,const rtgui_point_t * points,int count,enum RTGUI_BLENDMODE blendMode,rtgui_color_t color);
+
+void rtgui_dc_blend_fill_rect(struct rtgui_dc * dst,const rtgui_rect_t * rect,enum RTGUI_BLENDMODE blendMode,rtgui_color_t color);
+void rtgui_dc_blend_fill_rects(struct rtgui_dc * dst,const rtgui_rect_t * rects,int count,enum RTGUI_BLENDMODE blendMode,rtgui_color_t color);
 
 /*
  * dc inline function
