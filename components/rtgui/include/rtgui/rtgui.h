@@ -1,11 +1,21 @@
 /*
  * File      : rtgui.h
- * This file is part of RTGUI in RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2009, RT-Thread Development Team
+ * This file is part of RT-Thread GUI
+ * COPYRIGHT (C) 2009 - 2013, RT-Thread Development Team
  *
- * The license and distribution terms for this file may be
- * found in the file LICENSE in this distribution or at
- * http://www.rt-thread.org/license/LICENSE
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Change Logs:
  * Date           Author       Notes
@@ -104,6 +114,17 @@ enum RTGUI_BORDER_STYLE
 };
 #define RTGUI_BORDER_DEFAULT_WIDTH  2
 #define RTGUI_WIDGET_DEFAULT_MARGIN 3
+
+/**
+ * Blend mode
+ */ 
+enum RTGUI_BLENDMODE
+{
+	RTGUI_BLENDMODE_NONE = 0x00, 
+	RTGUI_BLENDMODE_BLEND,
+	RTGUI_BLENDMODE_ADD,
+	RTGUI_BLENDMODE_MOD,
+};
 
 /**
  * Orientation
