@@ -14,8 +14,6 @@ sys.path.insert(0, os.path.join(path_cwd, 'components', 'rtgui', 'utils'))
 import rtconfig
 from building import *
 
-env = Environment(TARGET_ARCH='x86')
-
 Export('RTT_ROOT')
 Export('rtconfig')
 
@@ -44,6 +42,8 @@ if rtconfig.PLATFORM == 'cl':
     _CONSOLE
     MSVC
     ''')
+
+    env = Environment(TARGET_ARCH='x86')
     env.Append(CCFLAGS=rtconfig.CFLAGS)
     env.Append(LINKFLAGS=rtconfig.LFLAGS)
     env['LIBS']=libs
@@ -70,8 +70,14 @@ elif rtconfig.PLATFORM == 'mingw':
         LINK = rtconfig.LINK, LINKFLAGS = rtconfig.LFLAGS)
     env['LIBS']=libs
     env.PrependENVPath('PATH', rtconfig.EXEC_PATH)
+elif rtconfig.CROSS_TOOL == 'clang-analyze':
+    env = Environment(AS = rtconfig.AS, ASFLAGS = rtconfig.AFLAGS,
+                      CC = rtconfig.CC, CCFLAGS = rtconfig.CFLAGS,
+                      AR = rtconfig.AR, ARFLAGS = '-rc',
+                      LINK = rtconfig.LINK, LINKFLAGS = rtconfig.LFLAGS)
 else:
     TARGET = 'rtthread'
+    env = Environment(TARGET_ARCH='x86')
     env.Append(CCFLAGS=rtconfig.CFLAGS)
     env.Append(LINKFLAGS=rtconfig.LFLAGS)
     env.Append(LIBS=['m'])

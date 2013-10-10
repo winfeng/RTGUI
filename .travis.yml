@@ -1,0 +1,16 @@
+language: c
+
+notifications:
+  email: false
+
+before_script:
+  - sudo apt-get -qq install gcc-multilib clang libsdl-dev
+  - git clone --depth 1 https://github.com/RT-Thread/rt-thread.git $HOME/rt-thread
+  - export RTT_ROOT=$HOME/rt-thread
+
+script:
+  - scons -k
+
+env:
+  - RTT_CC='gcc'
+  - RTT_CC='clang-analyze'

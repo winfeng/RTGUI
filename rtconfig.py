@@ -1,14 +1,19 @@
+import os
+
 # toolchains options
 ARCH='sim'
-#CROSS_TOOL='msvc' or 'gcc' or 'mingw' 
-CROSS_TOOL='msvc'
+#CROSS_TOOL can be 'msvc', 'gcc', 'mingw' 'clang-analyze'
+if os.getenv('RTT_CC'):
+    CROSS_TOOL = os.getenv('RTT_CC')
+else:
+    CROSS_TOOL='clang-analyze'
 
 # cross_tool provides the cross compiler
 # EXEC_PATH is the compiler execute path 
-if  CROSS_TOOL == 'gcc':
+if  CROSS_TOOL == 'clang-analyze' or CROSS_TOOL == 'gcc':
     CPU       = 'posix'
     PLATFORM  = 'gcc'
-    EXEC_PATH = '/usr/bin/gcc'
+    EXEC_PATH = ''
 
 elif  CROSS_TOOL == 'mingw':
     CPU       = 'win32'
@@ -24,10 +29,36 @@ else :
     print "bad CROSS TOOL!"
     exit(1)
 
-BUILD = 'debug'
-#BUILD = ''
+if os.getenv('RTT_EXEC_PATH'):
+	EXEC_PATH = os.getenv('RTT_EXEC_PATH')
 
-if PLATFORM == 'gcc':
+BUILD = 'debug'
+
+if CROSS_TOOL == 'clang-analyze':
+    TARGET_EXT = 'axf'
+    # toolchains
+    PREFIX = ''
+    CC = PREFIX + 'clang'
+    AS = PREFIX + 'true'
+    AR = PREFIX + 'true'
+    LINK = PREFIX + 'true'
+    SIZE = PREFIX + 'true'
+    OBJDUMP = PREFIX + 'true'
+    OBJCPY = PREFIX + 'true'
+
+    DEVICE = ' -pipe'
+    CFLAGS = DEVICE + ' -w -D_REENTRANT'
+    AFLAGS = ' '
+    LFLAGS = DEVICE + ' '
+
+    CPATH = ''
+    LPATH = ''
+
+    CFLAGS += ' -g -O0 -Wall --analyze'
+
+    POST_ACTION = ''
+
+elif PLATFORM == 'gcc':
     # toolchains
     PREFIX = ''
     CC = PREFIX + 'gcc'
@@ -39,12 +70,11 @@ if PLATFORM == 'gcc':
     OBJDUMP = PREFIX + 'objdump'
     OBJCPY = PREFIX + 'objcopy'
 
-    DEVICE = ' -ffunction-sections -fdata-sections'
-    DEVICE = '  '
+    DEVICE = ' -m32 -ffunction-sections -fdata-sections'
     CFLAGS = DEVICE + ' -I/usr/include -w -D_REENTRANT'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp'
     #LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map=rtthread-linux.map -lpthread'
-    LFLAGS = DEVICE + ' -Wl,-Map=rtthread-linux.map -pthread -T gcc.ld -lSDL'
+    LFLAGS = DEVICE + ' -Wl,-Map=rtthread-linux.map -pthread -T gcc.ld'
 
     CPATH = ''
     LPATH = ''
