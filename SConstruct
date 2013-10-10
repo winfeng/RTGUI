@@ -33,8 +33,6 @@ if rtconfig.PLATFORM == 'cl':
     odbc32
     msvcrt
     odbccp32
-    SDL
-    SDLmain
     ''')
     definitions = Split('''
     WIN32
@@ -106,10 +104,10 @@ sim_objs.extend(SConscript(path_jn(BSP_ROOT, 'drivers/SConscript'),
 					   duplicate=0))
 base_objs.extend(sim_objs)
 
-sdl_lib_path = [os.path.abspath(path_jn(BSP_ROOT, 'SDL/lib/x86'))]
-sdl_include_path = [os.path.abspath(path_jn(BSP_ROOT, 'SDL/include'))]
-env.Append(LIBPATH=sdl_lib_path)
-env.Append(CPPPATH=sdl_include_path)
+#sdl_lib_path = [os.path.abspath(path_jn(BSP_ROOT, 'SDL/lib/x86'))]
+#sdl_include_path = [os.path.abspath(path_jn(BSP_ROOT, 'SDL/include'))]
+#env.Append(LIBPATH=sdl_lib_path)
+#env.Append(CPPPATH=sdl_include_path)
 
 for exe_name, src_path in TARGETS:
     work_objs = base_objs + SConscript(dirs=[src_path],
