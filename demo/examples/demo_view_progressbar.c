@@ -77,6 +77,7 @@ rtgui_container_t *demo_view_progressbar(void)
     rect.y1 += 20;
     rect.y2 = rect.y1 + 18;
     hbar = rtgui_progressbar_create(RTGUI_HORIZONTAL, 100, &rect);
+    RTGUI_WIDGET_FOREGROUND(RTGUI_WIDGET(hbar)) = blue;
     rtgui_container_add_child(container, RTGUI_WIDGET(hbar));
 
     /* get demo container rect */
@@ -93,6 +94,7 @@ rtgui_container_t *demo_view_progressbar(void)
     rect.y1 += 18 + 5;
     rect.y2 = rect.y1 + 150;
     vbar = rtgui_progressbar_create(RTGUI_VERTICAL, 100, &rect);
+    RTGUI_WIDGET_FOREGROUND(RTGUI_WIDGET(vbar)) = red;
     rtgui_container_add_child(container, RTGUI_WIDGET(vbar));
 
     bar_timer = rtgui_timer_create(50, RT_TIMER_FLAG_PERIODIC,

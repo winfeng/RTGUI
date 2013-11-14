@@ -791,15 +791,16 @@ void rtgui_theme_draw_progressbar(struct rtgui_progressbar *bar)
     dc = rtgui_dc_begin_drawing(&(bar->parent));
     if (dc == RT_NULL) return;
 
-    bc = RTGUI_DC_BC(dc);
+    bc = RTGUI_WIDGET_BACKGROUND(bar);
+
     rtgui_widget_get_rect(&(bar->parent), &rect);
 
     /* fill button rect with background color */
     RTGUI_WIDGET_BACKGROUND(bar) = RTGUI_RGB(212, 208, 200);
-
     /* draw border */
     rtgui_dc_draw_border(dc, &rect, RTGUI_BORDER_SUNKEN);
 
+    RTGUI_WIDGET_BACKGROUND(bar) = bc;
     /* Nothing to draw */
     if (max == 0)
     {
@@ -811,7 +812,7 @@ void rtgui_theme_draw_progressbar(struct rtgui_progressbar *bar)
     rect.y2 ++;
     left = max - pos;
     rtgui_rect_inflate(&rect, -2);
-    RTGUI_WIDGET_BACKGROUND(bar) = RTGUI_RGB(0, 0, 255);
+
     rect.y2 --;
     rect.x2 --;
 
@@ -820,9 +821,10 @@ void rtgui_theme_draw_progressbar(struct rtgui_progressbar *bar)
         /* Vertical bar grows from bottom to top */
         int dy = (rtgui_rect_height(rect) * left) / max;
         rect.y1 += dy;
+        RTGUI_WIDGET_BACKGROUND(bar) = RTGUI_WIDGET_FOREGROUND(bar);
         rtgui_dc_fill_rect(dc, &rect);
+        RTGUI_WIDGET_BACKGROUND(bar) = bc;
 
-        RTGUI_DC_BC(dc) = bc;
         rect.y1 -= dy;
         rect.y2 = dy;
         rtgui_dc_fill_rect(dc, &rect);
@@ -832,9 +834,10 @@ void rtgui_theme_draw_progressbar(struct rtgui_progressbar *bar)
         /* Horizontal bar grows from left to right */
         int dx = (rtgui_rect_width(rect) * left) / max;
         rect.x2 -= dx;
+        RTGUI_WIDGET_BACKGROUND(bar) = RTGUI_WIDGET_FOREGROUND(bar);
         rtgui_dc_fill_rect(dc, &rect);
+        RTGUI_WIDGET_BACKGROUND(bar) = bc;
 
-        RTGUI_DC_BC(dc) = bc;
         rect.x1 = rect.x2;
         rect.x2 += dx;
         rtgui_dc_fill_rect(dc, &rect);
