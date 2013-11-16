@@ -263,17 +263,19 @@ void rtgui_dc_draw_focus_rect(struct rtgui_dc *dc, rtgui_rect_t *rect)
     for (x = rect->x1; x < rect->x2 - 1; x++)
     {
         if (x & 0x01)
+		{
             rtgui_dc_draw_point(dc, x, rect->y1);
-        if (x & 0x01)
             rtgui_dc_draw_point(dc, x, rect->y2 - 1);
+		}
     }
 
     for (y = rect->y1; y < rect->y2; y++)
     {
         if (y & 0x01)
+		{
             rtgui_dc_draw_point(dc, rect->x1, y);
-        if (y & 0x01)
             rtgui_dc_draw_point(dc, rect->x2 - 1, y);
+		}
     }
 }
 RTM_EXPORT(rtgui_dc_draw_focus_rect);
