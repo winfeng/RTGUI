@@ -33,27 +33,20 @@ static rt_bool_t stop_timer(struct rtgui_object *object, struct rtgui_event *eve
     return RT_TRUE;
 }
 
-static rt_bool_t progressbar_event_handler(struct rtgui_object *object, rtgui_event_t *event)
+static rt_bool_t container_event_handler(struct rtgui_object *object, rtgui_event_t *event)
 {
     struct rtgui_widget *widget = RTGUI_WIDGET(object);
 
     if (event->type == RTGUI_EVENT_SHOW)
     {
-        rtgui_container_event_handler(object, event);
         start_timer(object, event);
     }
     else if (event->type == RTGUI_EVENT_HIDE)
     {
-        rtgui_container_event_handler(object, event);
         stop_timer(object, event);
     }
-    else
-    {
-        /* 调用默认的事件处理函数 */
-        return rtgui_progressbar_event_handler(object, event);
-    }
 
-    return RT_FALSE;
+    return rtgui_container_event_handler(object, event);
 }
 
 rtgui_container_t *demo_view_progressbar(void)
@@ -97,6 +90,9 @@ rtgui_container_t *demo_view_progressbar(void)
 
     bar_timer = rtgui_timer_create(50, RT_TIMER_FLAG_PERIODIC,
                                    progressbar_timeout, RT_NULL);
+
+    rtgui_object_set_event_handler(RTGUI_OBJECT(container),
+                                   container_event_handler);
 
     return container;
 }
