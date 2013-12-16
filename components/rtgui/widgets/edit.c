@@ -198,7 +198,7 @@ struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left
         edit->col_per_page = effe / edit->font_width;
         if (effe % edit->font_width)
             edit->col_per_page += 1;
-        edit->update_buf = rtgui_malloc(edit->col_per_page + 1);
+        edit->update_buf = (char*)rtgui_malloc(edit->col_per_page + 1);
 
 #ifdef RTGUI_EDIT_USING_SCROLL
         if (edit->hscroll == RT_NULL && edit->flag & RTGUI_EDIT_HSCROLL)
@@ -287,12 +287,12 @@ rt_bool_t rtgui_edit_append_line(struct rtgui_edit *edit, const char *text)
 
     RT_ASSERT(edit != RT_NULL);
 
-    line = rtgui_malloc(sizeof(struct edit_line));
+    line = (struct edit_line*)rtgui_malloc(sizeof(struct edit_line));
     if (line == RT_NULL) return RT_FALSE;
 
     len = rtgui_edit_line_strlen(text);
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len + 1);
-    line->text = rtgui_malloc(line->zsize);
+    line->text = (char*)rtgui_malloc(line->zsize);
     rt_memcpy(line->text, text, len);
     *(line->text + len) = '\0';
     line->len = rtgui_edit_line_strlen(line->text);
@@ -335,7 +335,7 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
         return RT_TRUE;
     }
 
-    line = rtgui_malloc(sizeof(struct edit_line));
+    line = (struct edit_line*)rtgui_malloc(sizeof(struct edit_line));
     if (line == RT_NULL) return RT_FALSE;
 
     line->prev = p;
@@ -349,7 +349,7 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
     len = rtgui_edit_line_strlen(text);
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len + 1);
 
-    line->text = rtgui_malloc(line->zsize);
+    line->text = (char*)rtgui_malloc(line->zsize);
     rt_memset(line->text, 0, line->zsize);
     rt_memcpy(line->text, text, len);
     *(line->text + len) = '\0';
@@ -424,7 +424,7 @@ rt_bool_t rtgui_edit_connect_line(struct rtgui_edit *edit, struct edit_line *lin
     len2 = rtgui_edit_line_strlen(connect->text);
 
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len1 + len2 + 1);
-    line->text = rt_realloc(line->text, line->zsize);
+    line->text = (char*)rt_realloc(line->text, line->zsize);
     rt_memcpy(line->text + len1, connect->text, len2);
     *(line->text + len1 + len2) = '\0';
 
@@ -1017,7 +1017,7 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
         if (rtgui_edit_alloc_len(edit->bzsize, line->len + 2) < line->zsize)
         {
             line->zsize = rtgui_edit_alloc_len(edit->bzsize, line->len + 1);
-            line->text = rt_realloc(line->text, line->zsize);
+            line->text = (char*)rt_realloc(line->text, line->zsize);
         }
         update_type = EDIT_UPDATE;
         edit->update.start = edit->visual;
@@ -1417,7 +1417,7 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
             {
                 /* adjust line buffer's zone size */
                 line->zsize = rtgui_edit_alloc_len(edit->bzsize, line->len + 1);
-                line->text = rt_realloc(line->text, line->zsize);
+                line->text = (char*)rt_realloc(line->text, line->zsize);
                 rtgui_edit_onkey(object, event); /* reentry */
             }
         }
@@ -1923,7 +1923,7 @@ rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename)
     edit->max_rows = 0;
 
     size = edit->bzsize;
-    text = rtgui_malloc(size);
+    text = (char*)rtgui_malloc(size);
     if (text == RT_NULL) return RT_FALSE;
 
     do
@@ -1932,7 +1932,7 @@ rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename)
         {
             /* rt_kprintf("ch=%02X ",ch); DEBUG */
             if (num >= size - 1)
-                text = rt_realloc(text, rtgui_edit_alloc_len(size, num));
+                text = (char*)rt_realloc(text, rtgui_edit_alloc_len(size, num));
             if (ch == 0x09) //Tab
             {
                 len = edit->tabsize - num % edit->tabsize;
