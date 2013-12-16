@@ -331,8 +331,23 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
     struct edit_line *line;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(p != RT_NULL);
 
+    if(p == RT_NULL)
+	{
+		if(edit->max_rows==0)
+		{
+		 rtgui_edit_append_line(edit, text);
+         return RT_TRUE;
+		}else
+		{
+			return RT_FALSE;
+		}
+	}
+    if (p->next == RT_NULL)
+    {
+        rtgui_edit_append_line(edit, text);
+        return RT_TRUE;
+    }
     if (p->next == RT_NULL)
     {
         rtgui_edit_append_line(edit, text);
