@@ -188,9 +188,9 @@ struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left
         rtgui_container_add_child(container, RTGUI_WIDGET(edit));
         /* set edit update region*/
         edit->update.start.x=0;
-		edit->update.start.y=0;
-		edit->update.end.x=w;
-		edit->update.end.y=h;
+        edit->update.start.y=0;
+        edit->update.end.x=w;
+        edit->update.end.y=h;
         /* set character number */
         edit->item_height = edit->font_height; /* the same height */
         effe = h - (edit->margin + RTGUI_WIDGET_BORDER(edit)) * 2;
@@ -333,16 +333,16 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
     RT_ASSERT(edit != RT_NULL);
 
     if(p == RT_NULL)
-	{
-		if(edit->max_rows==0)
-		{
-		 rtgui_edit_append_line(edit, text);
-         return RT_TRUE;
-		}else
-		{
-			return RT_FALSE;
-		}
-	}
+    {
+        if(edit->max_rows==0)
+        {
+            rtgui_edit_append_line(edit, text);
+            return RT_TRUE;
+        }else
+        {
+            return RT_FALSE;
+        }
+    }
     if (p->next == RT_NULL)
     {
         rtgui_edit_append_line(edit, text);
@@ -379,10 +379,10 @@ RTM_EXPORT(rtgui_edit_insert_line);
 rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line)
 {
     RT_ASSERT(edit != RT_NULL);
-	if(line==RT_NULL)
-	{
-		return RT_FALSE;
-	}
+    if(line==RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     if (edit->max_rows == 0) return RT_FALSE;
 
@@ -396,11 +396,11 @@ rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line
         }
         else
         {
-           /* first item */
+            /* first item */
             edit->head = line->next;
-			edit->first_line=line->next;
-			edit->first_line->prev=RT_NULL;
-			edit->tail = RT_NULL;
+            edit->first_line=line->next;
+            edit->first_line->prev=RT_NULL;
+            edit->tail = RT_NULL;
         }
     }
     else
@@ -605,11 +605,11 @@ enum
     EDIT_IDENT_DIR_RIGHT
 };
 /*
-* identify a byte is double byte
-* @param dir set direction.
-* @param *p record the position of the effective.
-* @return RT_TRUE is Got it, else not found.
-*/
+ * identify a byte is double byte
+ * @param dir set direction.
+ * @param *p record the position of the effective.
+ * @return RT_TRUE is Got it, else not found.
+ */
 static rt_bool_t identify_double_byte(struct rtgui_edit *edit, struct edit_line *line,
                                       rt_uint32_t dir, rt_int16_t *p)
 {
