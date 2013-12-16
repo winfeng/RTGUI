@@ -106,7 +106,8 @@ extern "C" {
     rt_uint32_t rtgui_edit_get_mem_consume(struct rtgui_edit *edit);
     rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename);
     rt_bool_t rtgui_edit_saveas_file(struct rtgui_edit *edit, const char *filename);
-
+    struct edit_line *rtgui_edit_get_line_by_index(struct rtgui_edit *edit, rt_uint32_t index);
+	rt_uint32_t rtgui_edit_get_index_by_line(struct rtgui_edit *edit, struct edit_line *line);
 #ifdef __cplusplus
 }
 #endif
