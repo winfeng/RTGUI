@@ -186,7 +186,11 @@ struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left
         rect.y2 = rect.y1 + h;
         rtgui_widget_set_rect(RTGUI_WIDGET(edit), &rect);
         rtgui_container_add_child(container, RTGUI_WIDGET(edit));
-
+        /* set edit update region*/
+        edit->update.start.x=0;
+		edit->update.start.y=0;
+		edit->update.end.x=w;
+		edit->update.end.y=h;
         /* set character number */
         edit->item_height = edit->font_height; /* the same height */
         effe = h - (edit->margin + RTGUI_WIDGET_BORDER(edit)) * 2;
@@ -1538,7 +1542,7 @@ void rtgui_edit_update(struct rtgui_edit *edit)
     if (edit->update_buf == RT_NULL)
     {
         /* try again allocate */
-        edit->update_buf = rtgui_malloc(edit->col_per_page + 1);
+        edit->update_buf = (char*)rtgui_malloc(edit->col_per_page + 1);
     }
 
     prev_len = edit->col_per_page;
