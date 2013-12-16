@@ -360,11 +360,7 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
     line->prev = p;
     line->next = p->next;
     p->next = line;
-    if (line->next != RT_NULL)
-    {
-        line->next->prev = line;
-    }
-
+    line->next->prev = line;
     len = rtgui_edit_line_strlen(text);
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len + 1);
 
@@ -383,7 +379,10 @@ RTM_EXPORT(rtgui_edit_insert_line);
 rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line)
 {
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(line != RT_NULL);
+	if(line==RT_NULL)
+	{
+		return RT_FALSE;
+	}
 
     if (edit->max_rows == 0) return RT_FALSE;
 
@@ -397,9 +396,11 @@ rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line
         }
         else
         {
-            /* first item */
-            line->next->prev = RT_NULL;
+           /* first item */
             edit->head = line->next;
+			edit->first_line=line->next;
+			edit->first_line->prev=RT_NULL;
+			edit->tail = RT_NULL;
         }
     }
     else
