@@ -165,15 +165,14 @@ RTM_EXPORT(rtgui_dc_draw_rect);
 
 void rtgui_dc_fill_rect_forecolor(struct rtgui_dc *dc, struct rtgui_rect *rect)
 {
-    int i = 0;
-
-    rtgui_dc_draw_rect(dc, rect);
-    do
-    {
-        rtgui_dc_draw_hline(dc, rect->x1 + 1, rect->x2 - 1, rect->y1 + i);
-        i++;
-    }
-    while (!(rect->y1 + i == rect->y2));
+    rtgui_color_t save_color;
+    /*save the background color of dc*/
+    save_color = RTGUI_DC_BC(dc);
+    /*set the background color to fore color*/
+    RTGUI_DC_BC(dc) = RTGUI_DC_FC(dc);
+    dc->engine->fill_rect(dc, rect);
+    /*restore the background color of dc*/
+    RTGUI_DC_BC(dc) = save_color;
 }
 RTM_EXPORT(rtgui_dc_fill_rect_forecolor);
 
