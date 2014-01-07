@@ -19,6 +19,8 @@
 #include <rtgui/filerw.h>
 
 extern int isprint(unsigned char ch); /* Quote from shell.c */
+static void rtgui_edit_get_caret_rect(struct rtgui_edit *edit, rtgui_rect_t *rect, rtgui_point_t visual);
+static void rtgui_edit_init_caret(struct rtgui_edit *edit, rtgui_point_t visual);
 static void rtgui_edit_draw_caret(struct rtgui_edit *edit);
 static void rtgui_edit_timeout(struct rtgui_timer *timer, void *parameter);
 static rt_bool_t rtgui_edit_onfocus(struct rtgui_object *object, rtgui_event_t *event);
@@ -187,10 +189,10 @@ struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left
         rtgui_widget_set_rect(RTGUI_WIDGET(edit), &rect);
         rtgui_container_add_child(container, RTGUI_WIDGET(edit));
         /* set edit update region*/
-        edit->update.start.x=0;
-		edit->update.start.y=0;
-		edit->update.end.x=w;
-		edit->update.end.y=h;
+        edit->update.start.x = 0;
+        edit->update.start.y = 0;
+        edit->update.end.x = w;
+        edit->update.end.y = h;
         /* set character number */
         edit->item_height = edit->font_height; /* the same height */
         effe = h - (edit->margin + RTGUI_WIDGET_BORDER(edit)) * 2;
@@ -202,7 +204,7 @@ struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left
         edit->col_per_page = effe / edit->font_width;
         if (effe % edit->font_width)
             edit->col_per_page += 1;
-        edit->update_buf = (char*)rtgui_malloc(edit->col_per_page + 1);
+        edit->update_buf = (char *)rtgui_malloc(edit->col_per_page + 1);
 
 #ifdef RTGUI_EDIT_USING_SCROLL
         if (edit->hscroll == RT_NULL && edit->flag & RTGUI_EDIT_HSCROLL)
@@ -291,12 +293,12 @@ rt_bool_t rtgui_edit_append_line(struct rtgui_edit *edit, const char *text)
 
     RT_ASSERT(edit != RT_NULL);
 
-    line = (struct edit_line*)rtgui_malloc(sizeof(struct edit_line));
+    line = (struct edit_line *)rtgui_malloc(sizeof(struct edit_line));
     if (line == RT_NULL) return RT_FALSE;
 
     len = rtgui_edit_line_strlen(text);
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len + 1);
-    line->text = (char*)rtgui_malloc(line->zsize);
+    line->text = (char *)rtgui_malloc(line->zsize);
     rt_memcpy(line->text, text, len);
     *(line->text + len) = '\0';
     line->len = rtgui_edit_line_strlen(line->text);
@@ -332,17 +334,11 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
 
     RT_ASSERT(edit != RT_NULL);
 
-    if(p == RT_NULL)
-	{
-		if(edit->max_rows==0)
-		{
-		 rtgui_edit_append_line(edit, text);
-         return RT_TRUE;
-		}else
-		{
-			return RT_FALSE;
-		}
-	}
+    if (p == RT_NULL)
+    {
+        rtgui_edit_append_line(edit, text);
+        return RT_TRUE;
+    }
     if (p->next == RT_NULL)
     {
         rtgui_edit_append_line(edit, text);
@@ -354,7 +350,7 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
         return RT_TRUE;
     }
 
-    line = (struct edit_line*)rtgui_malloc(sizeof(struct edit_line));
+    line = (struct edit_line *)rtgui_malloc(sizeof(struct edit_line));
     if (line == RT_NULL) return RT_FALSE;
 
     line->prev = p;
@@ -364,7 +360,7 @@ rt_bool_t rtgui_edit_insert_line(struct rtgui_edit *edit, struct edit_line *p, c
     len = rtgui_edit_line_strlen(text);
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len + 1);
 
-    line->text = (char*)rtgui_malloc(line->zsize);
+    line->text = (char *)rtgui_malloc(line->zsize);
     rt_memset(line->text, 0, line->zsize);
     rt_memcpy(line->text, text, len);
     *(line->text + len) = '\0';
@@ -379,10 +375,10 @@ RTM_EXPORT(rtgui_edit_insert_line);
 rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line)
 {
     RT_ASSERT(edit != RT_NULL);
-	if(line==RT_NULL)
-	{
-		return RT_FALSE;
-	}
+    if (line == RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     if (edit->max_rows == 0) return RT_FALSE;
 
@@ -393,14 +389,18 @@ rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line
             /* only one item */
             edit->head = RT_NULL;
             edit->tail = RT_NULL;
+            /*set the caret to the start*/
+            edit->visual.x = 0;
+            edit->visual.y = 0;
+            rtgui_edit_init_caret(edit, edit->visual);
         }
         else
         {
-           /* first item */
+            /* first item */
             edit->head = line->next;
-			edit->first_line=line->next;
-			edit->first_line->prev=RT_NULL;
-			edit->tail = RT_NULL;
+            edit->first_line = line->next;
+            edit->first_line->prev = RT_NULL;
+            edit->tail = RT_NULL;
         }
     }
     else
@@ -410,6 +410,10 @@ rt_bool_t rtgui_edit_delete_line(struct rtgui_edit *edit, struct edit_line *line
             /* last item */
             line->prev->next = RT_NULL;
             edit->tail = line->prev;
+            /*set the caret to prev line*/
+            edit->visual.x = line->prev->len;
+            edit->visual.y -= 1;
+            rtgui_edit_init_caret(edit, edit->visual);
         }
         else
         {
@@ -437,14 +441,16 @@ rt_bool_t rtgui_edit_connect_line(struct rtgui_edit *edit, struct edit_line *lin
     rt_int16_t len1, len2;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(line != RT_NULL);
-    RT_ASSERT(connect != RT_NULL);
+    if (line == RT_NULL || connect == RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     len1 = rtgui_edit_line_strlen(line->text);
     len2 = rtgui_edit_line_strlen(connect->text);
 
     line->zsize = rtgui_edit_alloc_len(edit->bzsize, len1 + len2 + 1);
-    line->text = (char*)rt_realloc(line->text, line->zsize);
+    line->text = (char *)rt_realloc(line->text, line->zsize);
     rt_memcpy(line->text + len1, connect->text, len2);
     *(line->text + len1 + len2) = '\0';
 
@@ -580,7 +586,10 @@ rt_uint32_t rtgui_edit_get_index_by_line(struct rtgui_edit *edit, struct edit_li
     struct edit_line *tmp;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(line != RT_NULL);
+    if (line == RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     if (edit->head != RT_NULL)
     {
@@ -616,7 +625,10 @@ static rt_bool_t identify_double_byte(struct rtgui_edit *edit, struct edit_line 
     int index, effe_nums;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(line != RT_NULL);
+    if (line == RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     if (dir == EDIT_IDENT_DIR_BOTH)
     {
@@ -629,8 +641,13 @@ static rt_bool_t identify_double_byte(struct rtgui_edit *edit, struct edit_line 
         effe_nums = 0;
         while (index--)
         {
-            if ((rt_uint8_t)(*(line->text + index)) >= 0x80)
+            if ((rt_uint8_t)(*(line->text + index)) >= 0x40)
+            {
+                index--;
                 effe_nums ++;
+                if ((rt_uint8_t)(*(line->text + index)) >= 0x80)
+                    effe_nums ++;
+            }
             else
                 break;
         }
@@ -668,7 +685,10 @@ static void rtgui_edit_onmouse(struct rtgui_edit *edit, struct rtgui_event_mouse
     rtgui_rect_t rect;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(emouse != RT_NULL);
+    if (emouse == RT_NULL)
+    {
+        return ;
+    }
 
     rtgui_widget_get_rect(RTGUI_WIDGET(edit), &rect);
     if ((rtgui_region_contains_point(&(RTGUI_WIDGET(edit)->clip), emouse->x, emouse->y, &rect) == RT_EOK))
@@ -690,17 +710,23 @@ static void rtgui_edit_onmouse(struct rtgui_edit *edit, struct rtgui_event_mouse
 
                 line = rtgui_edit_get_line_by_index(edit, edit->upleft.y + edit->visual.y);
                 if (line == RT_NULL)
-                    return;
-
-                if (edit->visual.x > line->len)
-                    edit->visual.x = line->len;
-                if (edit->upleft.x > 0)
                 {
-                    if (edit->upleft.x >= line->len)
-                        edit->upleft.x = 0;
-                    else
-                        edit->visual.x -= edit->upleft.x;
-                    rtgui_edit_ondraw(edit);
+                    edit->visual.x = 0;
+                    edit->visual.y = 0;
+                }
+                else
+                {
+
+                    if (edit->visual.x > line->len)
+                        edit->visual.x = line->len;
+                    if (edit->upleft.x > 0)
+                    {
+                        if (edit->upleft.x >= line->len)
+                            edit->upleft.x = 0;
+                        else
+                            edit->visual.x -= edit->upleft.x;
+                        rtgui_edit_ondraw(edit);
+                    }
                 }
                 if (identify_double_byte(edit, line, EDIT_IDENT_DIR_LEFT, &tmp_pos))
                     edit->visual.x -= (2 - tmp_pos);
@@ -863,7 +889,10 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
     rt_bool_t update_type = EDIT_NONE;
 
     RT_ASSERT(edit != RT_NULL);
-    RT_ASSERT(ekbd != RT_NULL);
+    if (ekbd == RT_NULL)
+    {
+        return RT_FALSE;
+    }
 
     if (RTGUI_KBD_IS_UP(ekbd))
     {
@@ -883,7 +912,13 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
 
     line = rtgui_edit_get_line_by_index(edit, edit->upleft.y + edit->visual.y);
     if (line == RT_NULL)
-        return RT_FALSE;
+    {
+        if (edit->max_rows == 0)
+        {
+            rtgui_edit_append_line(edit, "");
+            line = edit->first_line;
+        }
+    }
 
     /* rt_kprintf("key=%04X ",ekbd->key); */
     if (ekbd->key == RTGUIK_RCTRL || ekbd->key == RTGUIK_LCTRL)
@@ -1037,7 +1072,7 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
         if (rtgui_edit_alloc_len(edit->bzsize, line->len + 2) < line->zsize)
         {
             line->zsize = rtgui_edit_alloc_len(edit->bzsize, line->len + 1);
-            line->text = (char*)rt_realloc(line->text, line->zsize);
+            line->text = (char *)rt_realloc(line->text, line->zsize);
         }
         update_type = EDIT_UPDATE;
         edit->update.start = edit->visual;
@@ -1381,6 +1416,9 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
             else
             {
                 char_width = 1;
+
+
+
                 input_char = ekbd->key;
             }
 
@@ -1406,8 +1444,8 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
                 {
                     char *c;
                     for (c = &line->text[line->len + char_width - 1];
-                         c != &line->text[ofs];
-                         c--)
+                            c != &line->text[ofs];
+                            c--)
                         *c = *(c - char_width);
                 }
                 if (char_width == 1)
@@ -1418,11 +1456,11 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
                 {
                     /* little endian */
                     line->text[ofs]   = input_char >> 8;
-                    line->text[ofs+1] = input_char & 0xFF;
+                    line->text[ofs + 1] = input_char & 0xFF;
                 }
                 else
                 {
-                    RT_ASSERT(0);
+                    return RT_FALSE;
                 }
                 if (edit->visual.x < edit->col_per_page - char_width)
                     edit->visual.x += char_width;
@@ -1437,7 +1475,7 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
             {
                 /* adjust line buffer's zone size */
                 line->zsize = rtgui_edit_alloc_len(edit->bzsize, line->len + 1);
-                line->text = (char*)rt_realloc(line->text, line->zsize);
+                line->text = (char *)rt_realloc(line->text, line->zsize);
                 rtgui_edit_onkey(object, event); /* reentry */
             }
         }
@@ -1558,7 +1596,7 @@ void rtgui_edit_update(struct rtgui_edit *edit)
     if (edit->update_buf == RT_NULL)
     {
         /* try again allocate */
-        edit->update_buf = (char*)rtgui_malloc(edit->col_per_page + 1);
+        edit->update_buf = (char *)rtgui_malloc(edit->col_per_page + 1);
     }
 
     prev_len = edit->col_per_page;
@@ -1775,7 +1813,6 @@ void rtgui_edit_set_text(struct rtgui_edit *edit, const char *text)
 
     while (edit->max_rows > 0)
         rtgui_edit_delete_line(edit, edit->head);
-    edit->max_rows = 0;
 
     begin = text;
     for (ptr = begin; *ptr != '\0'; ptr++)
@@ -1943,7 +1980,7 @@ rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename)
     edit->max_rows = 0;
 
     size = edit->bzsize;
-    text = (char*)rtgui_malloc(size);
+    text = (char *)rtgui_malloc(size);
     if (text == RT_NULL) return RT_FALSE;
 
     do
@@ -1952,7 +1989,7 @@ rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename)
         {
             /* rt_kprintf("ch=%02X ",ch); DEBUG */
             if (num >= size - 1)
-                text = (char*)rt_realloc(text, rtgui_edit_alloc_len(size, num));
+                text = (char *)rt_realloc(text, rtgui_edit_alloc_len(size, num));
             if (ch == 0x09) //Tab
             {
                 len = edit->tabsize - num % edit->tabsize;
