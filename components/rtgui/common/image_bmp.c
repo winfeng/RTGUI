@@ -12,6 +12,8 @@
 #include <rtgui/image_bmp.h>
 #include <rtgui/blit.h>
 
+#include <math.h>
+
 #ifdef RTGUI_USING_DFS_FILERW
 #include <dfs_posix.h>
 #endif

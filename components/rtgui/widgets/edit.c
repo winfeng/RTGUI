@@ -18,7 +18,8 @@
 #include <rtgui/rtgui_system.h>
 #include <rtgui/filerw.h>
 
-extern int isprint(unsigned char ch); /* Quote from shell.c */
+#define __is_print(ch) ((unsigned int)((ch) - ' ') < 127u - ' ')
+
 static void rtgui_edit_draw_caret(struct rtgui_edit *edit);
 static void rtgui_edit_timeout(struct rtgui_timer *timer, void *parameter);
 static rt_bool_t rtgui_edit_onfocus(struct rtgui_object *object, rtgui_event_t *event);
@@ -1368,7 +1369,7 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
     else
     {
         /* FIXME: more check on isprint(unicode)*/
-        if (ekbd->unicode || isprint((unsigned char)ekbd->key))
+        if (ekbd->unicode || __is_print((unsigned char)ekbd->key))
         {
             int char_width;
             rt_uint16_t input_char;
