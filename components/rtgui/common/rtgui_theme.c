@@ -602,11 +602,7 @@ void rtgui_theme_draw_radiobox(struct rtgui_radiobox *radiobox)
         /* draw group text */
         rtgui_font_get_metrics(RTGUI_DC_FONT(dc), radiobox->text, &text_rect);
         rtgui_rect_moveto(&text_rect, rect.x1 + bord_size + 5, rect.y1);
-        rect.x1 -= 5;
-        rect.x2 += 5;
         rtgui_dc_fill_rect(dc, &text_rect);
-        rect.x1 += 5;
-        rect.x2 -= 5;
         rtgui_dc_draw_text(dc, radiobox->text, &text_rect);
     }
 
@@ -678,7 +674,7 @@ void rtgui_theme_draw_radiobox(struct rtgui_radiobox *radiobox)
             item_rect.x1 -= bord_size + 3;
 
             item_rect.x1 += item_size;
-            item_rect.x2 += (item_size - 1);
+            item_rect.x2 += item_size;
         }
     }
 
