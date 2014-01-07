@@ -5,6 +5,6 @@ from building import *
 cwd = GetCurrentDir()
 src = Glob('*.c')
 
-group = DefineGroup('RTGUI', src, depend = ['RT_USING_RTGUI'])
+group = DefineGroup('RTGUI', src, depend = ['RTGUI_USING_CALI'])
 
 Return('group')
