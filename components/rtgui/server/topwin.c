@@ -496,7 +496,7 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 {
     struct rt_list_node *node;
 
-    rt_list_foreach(node, &topwin->child_list, prev)
+    rt_list_foreach(node, &topwin->child_list, next)
     {
         if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
             break;
