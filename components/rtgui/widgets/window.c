@@ -300,6 +300,8 @@ rt_base_t rtgui_win_show(struct rtgui_win *win, rt_bool_t is_modal)
         exit_code = rtgui_app_run(app);
         win->flag &= ~RTGUI_WIN_FLAG_MODAL;
 
+        rtgui_win_hide(win);
+
         if (win->style & RTGUI_WIN_STYLE_DESTROY_ON_CLOSE)
         {
             rtgui_win_destroy(win);
