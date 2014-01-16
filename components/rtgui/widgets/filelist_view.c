@@ -576,6 +576,8 @@ rt_bool_t rtgui_filelist_view_event_handler(struct rtgui_object *object, struct 
             view->page_items = resize->h  / (1 + rtgui_theme_get_selected_height());
         else
             view->page_items = resize->h / (2 + 14);
+        if (view->page_items == 0)
+            view->page_items = 1;
     }
     break;
 
@@ -688,6 +690,9 @@ rtgui_filelist_view_t *rtgui_filelist_view_create(const char *directory,
         view->items = RT_NULL;
         view->pattern = rt_strdup(pattern);
         view->page_items = rtgui_rect_height(*rect) / (1 + rtgui_theme_get_selected_height());
+        /* Avoid divide by 0 error, display at least one item. */
+        if (view->page_items == 0)
+            view->page_items = 1;
         rtgui_filelist_view_set_directory(view, directory);
     }
 
