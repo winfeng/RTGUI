@@ -101,6 +101,9 @@ static void application_entry(void *parameter)
 	demo_view_edit();
 	demo_view_bmp();
 #endif
+#if defined(RTGUI_USING_DFS_FILERW)
+    demo_fn_view();
+#endif
 
 #if 0
 #if defined(RTGUI_USING_DFS_FILERW)
@@ -113,9 +116,6 @@ static void application_entry(void *parameter)
 #endif
     demo_listview_view();
     demo_listview_icon_view();
-#if defined(RTGUI_USING_DFS_FILERW)
-    demo_fn_view();
-#endif
 #endif
 
     rtgui_win_show(main_win, RT_FALSE);
