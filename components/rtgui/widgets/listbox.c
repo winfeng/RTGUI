@@ -347,7 +347,8 @@ rtgui_listbox_t *rtgui_listbox_create(const struct rtgui_listbox_item *items, rt
         box->items_count = count;
 
         box->page_items = rtgui_rect_height(*rect) / (2 + rtgui_theme_get_selected_height());
-        if (box->page_items == 0) box->page_items = 1;
+        if (box->page_items == 0)
+            box->page_items = 1;
         rtgui_widget_set_rect(RTGUI_WIDGET(box), rect);
     }
 
