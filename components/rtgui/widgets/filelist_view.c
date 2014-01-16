@@ -310,7 +310,7 @@ static void rtgui_filelist_view_menu_pop(rtgui_widget_t *parent)
     if (menu != RT_NULL)
     {
         rtgui_listbox_t *listbox;
-        /* set user data on menu window */
+        /* Pass the pointer to filelist_view via user_data. */
         menu->user_data = (rt_uint32_t)parent;
 
         rtgui_win_set_ondeactivate(menu, rtgui_filelist_view_on_menu_deactivate);
@@ -775,29 +775,33 @@ void rtgui_filelist_view_set_directory(rtgui_filelist_view_t *view, const char *
 
         view->items_count = 0;
         dir = opendir(directory);
-        if (dir == RT_NULL)  goto __return;
+        if (dir == RT_NULL)
+            goto __return;
 
         /* current directory exists, set it */
-        if (view->current_directory != RT_NULL) rt_free(view->current_directory);
+        if (view->current_directory != RT_NULL)
+            rt_free(view->current_directory);
         view->current_directory = rt_strdup(directory);
 
-        do
-        {
+        do {
             dirent = readdir(dir);
-            if (dirent == RT_NULL) break;
+            if (dirent == RT_NULL)
+                break;
 
-            if (strcmp(dirent->d_name, ".") == 0) continue;
-            if (strcmp(dirent->d_name, "..") == 0) continue;
+            if (strcmp(dirent->d_name, ".") == 0)
+                continue;
+            if (strcmp(dirent->d_name, "..") == 0)
+                continue;
 
             view->items_count ++;
-        }
-        while (dirent != RT_NULL);
+        } while (dirent != RT_NULL);
         closedir(dir);
 
         view->items_count ++; /* root directory for [x] exit, others for .. */
 
-        view->items = (struct rtgui_file_item *) rtgui_malloc(sizeof(struct rtgui_file_item) * view->items_count);
-        if (view->items == RT_NULL) return; /* no memory */
+        view->items = (struct rtgui_file_item *)rtgui_malloc(sizeof(struct rtgui_file_item) * view->items_count);
+        if (view->items == RT_NULL)
+            return; /* no memory */
 
         index = 0;
         if (directory[0] == '/' && directory[1] != '\0')
