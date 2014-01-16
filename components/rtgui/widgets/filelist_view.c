@@ -225,12 +225,12 @@ const static char *folder_xpm[] =
 
 /* image for file and folder */
 static rtgui_image_t *file_image, *folder_image;
-static struct rtgui_listbox_item items[] =
+static struct rtgui_listbox_item _folder_actions[] =
 {
 #ifdef RTGUI_USING_FONTHZ
-    {"湖羲恅璃標", RT_NULL},
-    {"恁寁恅璃標", RT_NULL},
-    {"豖堤", RT_NULL}
+    {"打开文件夹", RT_NULL},
+    {"选择文件夹", RT_NULL},
+    {"取消", RT_NULL}
 #else
     {"Open folder", RT_NULL},
     {"Select folder", RT_NULL},
@@ -294,26 +294,34 @@ static rt_bool_t rtgui_filelist_view_on_menu_deactivate(rtgui_object_t *object, 
 
 static void rtgui_filelist_view_menu_pop(rtgui_widget_t *parent)
 {
-    rtgui_win_t *menu;
-    rtgui_listbox_t *listbox;
+    struct rtgui_win *menu;
     rtgui_rect_t screen, rect = {0, 0, 140, 85};
 
     rtgui_graphic_driver_get_rect(rtgui_graphic_driver_get_default(), &screen);
     rtgui_rect_moveto_align(&screen, &rect, RTGUI_ALIGN_CENTER_HORIZONTAL | RTGUI_ALIGN_CENTER_VERTICAL);
 
     menu = rtgui_win_create(RTGUI_WIN(rtgui_widget_get_toplevel(parent)),
-                            "Folder Menu", &rect, RTGUI_WIN_STYLE_DEFAULT);
+                            "Folder Menu", &rect,
+                            RTGUI_WIN_STYLE_DEFAULT | RTGUI_WIN_STYLE_DESTROY_ON_CLOSE);
     if (menu != RT_NULL)
     {
+        rtgui_listbox_t *listbox;
         /* set user data on menu window */
         menu->user_data = (rt_uint32_t)parent;
 
         rtgui_win_set_ondeactivate(menu, rtgui_filelist_view_on_menu_deactivate);
 
-        listbox = rtgui_listbox_create(items, sizeof(items) / sizeof(items[0]), &rect);
-        rtgui_listbox_set_onitem(listbox, rtgui_filelist_view_on_folder_item);
-        rtgui_container_add_child(RTGUI_CONTAINER(menu), RTGUI_WIDGET(listbox));
+        listbox = rtgui_listbox_create(_folder_actions,
+                                       sizeof(_folder_actions) / sizeof(_folder_actions[0]),
+                                       &rect);
+        /* Set the item index *before* setup the callback. `set_current_item`
+         * will invoke the "onitem". So just keep it clean when setting the
+         * current item. */
         rtgui_listbox_set_current_item(listbox, 0);
+        rtgui_listbox_set_onitem(listbox, rtgui_filelist_view_on_folder_item);
+
+        rtgui_container_add_child(RTGUI_CONTAINER(menu), RTGUI_WIDGET(listbox));
+
         rtgui_win_show(menu, RT_TRUE);
     }
 }
@@ -512,13 +520,16 @@ static void rtgui_filelist_view_onenturn(struct rtgui_filelist_view *view)
     {
         char new_path[64];
 
-        if (strcmp(view->items[view->current_item].name, ".") == 0) return ;
+        if (strcmp(view->items[view->current_item].name, ".") == 0)
+            return;
+
         if (strcmp(view->items[view->current_item].name, "..") == 0)
         {
             char *ptr;
             ptr = strrchr(view->current_directory, PATH_SEPARATOR);
 
-            if (ptr == RT_NULL) return ;
+            if (ptr == RT_NULL)
+                return;
             if (ptr == &(view->current_directory[0]))
             {
                 /* it's root directory */
@@ -541,12 +552,12 @@ static void rtgui_filelist_view_onenturn(struct rtgui_filelist_view *view)
         {
             rtgui_filelist_view_destroy(view);
 
-            return ;
+            return;
         }
         else
         {
             rtgui_filelist_view_menu_pop(RTGUI_WIDGET(view));
-            return ;
+            return;
         }
         rtgui_filelist_view_set_directory(view, new_path);
     }
