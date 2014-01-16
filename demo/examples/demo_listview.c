@@ -26,7 +26,7 @@ static void listitem_action(rtgui_widget_t *widget, void *parameter)
     rtgui_rect_moveto(&rect, 20, 50);
 
     /* 显示消息窗口 */
-    win = rtgui_win_create(RTGUI_TOPLEVEL(application),
+    win = rtgui_win_create(main_win,
                            "窗口", &rect, RTGUI_WIN_STYLE_DEFAULT);
 
     rect.x1 += 20;
