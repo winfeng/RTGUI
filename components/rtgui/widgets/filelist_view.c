@@ -237,6 +237,10 @@ static struct rtgui_listbox_item _folder_actions[] =
     {"Cancel", RT_NULL}
 #endif
 };
+/* Count the filelist_view instances. If the instance_count reaches 0, the
+ * file_image and folder_image is OK to be freed. */
+static int _instance_count;
+
 static void rtgui_filelist_view_clear(rtgui_filelist_view_t *view);
 
 static rt_bool_t rtgui_filelist_view_on_folder_item(rtgui_object_t *object, struct rtgui_event *event)
@@ -346,10 +350,14 @@ static void _rtgui_filelist_view_constructor(struct rtgui_filelist_view *view)
     RTGUI_WIDGET_BACKGROUND(view) = white;
     RTGUI_WIDGET_TEXTALIGN(view) = RTGUI_ALIGN_CENTER_VERTICAL;
 
-    file_image = rtgui_image_create_from_mem("xpm",
-                 (rt_uint8_t *)file_xpm, sizeof(file_xpm), RT_TRUE);
-    folder_image = rtgui_image_create_from_mem("xpm",
-                   (rt_uint8_t *)folder_xpm, sizeof(folder_xpm), RT_TRUE);
+    _instance_count++;
+    if (_instance_count == 1)
+    {
+        file_image = rtgui_image_create_from_mem("xpm", (rt_uint8_t *)file_xpm,
+                                                 sizeof(file_xpm), RT_TRUE);
+        folder_image = rtgui_image_create_from_mem("xpm", (rt_uint8_t *)folder_xpm,
+                                                   sizeof(folder_xpm), RT_TRUE);
+    }
 }
 
 static void _rtgui_filelist_view_destructor(struct rtgui_filelist_view *view)
@@ -368,9 +376,16 @@ static void _rtgui_filelist_view_destructor(struct rtgui_filelist_view *view)
         view->pattern = RT_NULL;
     }
 
-    /* delete image */
-    rtgui_image_destroy(file_image);
-    rtgui_image_destroy(folder_image);
+    _instance_count--;
+    RT_ASSERT(_instance_count >= 0);
+    if (_instance_count == 0)
+    {
+        /* delete image */
+        rtgui_image_destroy(file_image);
+        file_image = RT_NULL;
+        rtgui_image_destroy(folder_image);
+        folder_image = RT_NULL;
+    }
 }
 
 DEFINE_CLASS_TYPE(filelist, "filelist",
