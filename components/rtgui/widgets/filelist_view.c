@@ -305,8 +305,7 @@ static void rtgui_filelist_view_menu_pop(rtgui_widget_t *parent)
     rtgui_rect_moveto_align(&screen, &rect, RTGUI_ALIGN_CENTER_HORIZONTAL | RTGUI_ALIGN_CENTER_VERTICAL);
 
     menu = rtgui_win_create(RTGUI_WIN(rtgui_widget_get_toplevel(parent)),
-                            "Folder Menu", &rect,
-                            RTGUI_WIN_STYLE_DEFAULT | RTGUI_WIN_STYLE_DESTROY_ON_CLOSE);
+                            "Folder Menu", &rect, RTGUI_WIN_STYLE_DESTROY_ON_CLOSE);
     if (menu != RT_NULL)
     {
         rtgui_listbox_t *listbox;
