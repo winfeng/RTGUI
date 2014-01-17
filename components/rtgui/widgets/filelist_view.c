@@ -778,19 +778,34 @@ void rtgui_filelist_view_set_directory(rtgui_filelist_view_t *view, const char *
 
             if (strcmp(dirent->d_name, ".") == 0)
                 continue;
-            if (strcmp(dirent->d_name, "..") == 0 &&
-                (directory[0] == '/' && directory[1] == '\0'))
+            /* readdir is not guaranteed to return "..". So we should deal with
+             * it specially. */
+            if (strcmp(dirent->d_name, "..") == 0)
                 continue;
 
-            view->items_count ++;
+            view->items_count++;
         } while (dirent != RT_NULL);
         closedir(dir);
+
+        /* Add ".." entry. */
+        if (!(directory[0] == '/' && directory[1] == '\0'))
+            view->items_count++;
 
         view->items = (struct rtgui_file_item *)rtgui_malloc(sizeof(struct rtgui_file_item) * view->items_count);
         if (view->items == RT_NULL)
             return; /* no memory */
 
         index = 0;
+
+        if (!(directory[0] == '/' && directory[1] == '\0'))
+        {
+            item = &(view->items[index]);
+            item->name = rt_strdup("..");
+            item->type = RTGUI_FITEM_DIR;
+            item->size = 0;
+
+            index++;
+        }
 
         /* reopen directory */
         dir = opendir(directory);
@@ -803,8 +818,7 @@ void rtgui_filelist_view_set_directory(rtgui_filelist_view_t *view, const char *
 
             if (strcmp(dirent->d_name, ".") == 0)
                 continue;
-            if (strcmp(dirent->d_name, "..") == 0 &&
-                (directory[0] == '/' && directory[1] == '\0'))
+            if (strcmp(dirent->d_name, "..") == 0)
                 continue;
 
             item = &(view->items[index]);
