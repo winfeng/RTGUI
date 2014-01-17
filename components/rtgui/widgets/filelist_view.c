@@ -557,18 +557,6 @@ static void rtgui_filelist_view_onenturn(struct rtgui_filelist_view *view)
                 new_path[ptr - view->current_directory] = '\0';
             }
         }
-        else if (view->current_item == 0 &&
-#ifdef _WIN32_NATIVE
-                 (view->current_directory[1] == ':') && (view->current_directory[2] == '\\')
-#else
-                 (view->current_directory[0] == '/') && (view->current_directory[1] == '\0')
-#endif
-                )
-        {
-            rtgui_filelist_view_destroy(view);
-
-            return;
-        }
         else
         {
             rtgui_filelist_view_menu_pop(RTGUI_WIDGET(view));
@@ -790,46 +778,19 @@ void rtgui_filelist_view_set_directory(rtgui_filelist_view_t *view, const char *
 
             if (strcmp(dirent->d_name, ".") == 0)
                 continue;
-            if (strcmp(dirent->d_name, "..") == 0)
+            if (strcmp(dirent->d_name, "..") == 0 &&
+                (directory[0] == '/' && directory[1] == '\0'))
                 continue;
 
             view->items_count ++;
         } while (dirent != RT_NULL);
         closedir(dir);
 
-        view->items_count ++; /* root directory for [x] exit, others for .. */
-
         view->items = (struct rtgui_file_item *)rtgui_malloc(sizeof(struct rtgui_file_item) * view->items_count);
         if (view->items == RT_NULL)
             return; /* no memory */
 
         index = 0;
-        if (directory[0] == '/' && directory[1] != '\0')
-        {
-            item = &(view->items[0]);
-
-            /* add .. directory */
-            item->name = rt_strdup("..");
-            item->type = RTGUI_FITEM_DIR;
-            item->size = 0;
-
-            index ++;
-        }
-        else
-        {
-            item = &(view->items[0]);
-
-            /* add .. directory */
-#ifdef RTGUI_USING_FONTHZ
-            item->name = rt_strdup("ÍË³öÎÄ¼þä¯ÀÀ");
-#else
-            item->name = rt_strdup("..");
-#endif
-            item->type = RTGUI_FITEM_DIR;
-            item->size = 0;
-
-            index ++;
-        }
 
         /* reopen directory */
         dir = opendir(directory);
@@ -837,10 +798,14 @@ void rtgui_filelist_view_set_directory(rtgui_filelist_view_t *view, const char *
         while (index < view->items_count)
         {
             dirent = readdir(dir);
-            if (dirent == RT_NULL) break;
+            if (dirent == RT_NULL)
+                break;
 
-            if (strcmp(dirent->d_name, ".") == 0) continue;
-            if (strcmp(dirent->d_name, "..") == 0) continue;
+            if (strcmp(dirent->d_name, ".") == 0)
+                continue;
+            if (strcmp(dirent->d_name, "..") == 0 &&
+                (directory[0] == '/' && directory[1] == '\0'))
+                continue;
 
             item = &(view->items[index]);
             item->name = rt_strdup(dirent->d_name);
