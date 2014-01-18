@@ -603,10 +603,8 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
         }
         else
         {
-            rt_kprintf("K");
             if (box->text[box->first_pos] > 0x80)
             {
-                rt_kprintf("1");
                 box->first_pos += 2;
                 if (chw == 1)
                     box->position--;
@@ -614,13 +612,11 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
             else if (chw == 2 &&
                      box->text[box->first_pos+1] > 0x80)
             {
-                rt_kprintf("2");
                 box->first_pos += 3;
                 box->position  -= 1;
             }
             else
                 box->first_pos += chw;
-            rt_kprintf("\n");
         }
     }
 
