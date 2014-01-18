@@ -656,6 +656,7 @@ static rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_
 		if (box->caret_timer != RT_NULL)
 			rtgui_timer_start(box->caret_timer);
 	}
+    rtgui_textbox_init_caret(box, box->position);
 
 	return RT_TRUE;
 }
