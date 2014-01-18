@@ -25,7 +25,6 @@
 
 static void rtgui_textbox_draw_caret(rtgui_textbox_t *box, rt_uint16_t position);
 static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t *event);
-static rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_t *event);
 static rt_bool_t rtgui_textbox_onunfocus(struct rtgui_object *widget, rtgui_event_t *event);
 
 static void _rtgui_textbox_constructor(rtgui_textbox_t *box)
@@ -642,7 +641,7 @@ _exit:
 	return RT_TRUE;
 }
 
-static rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_t *event)
+rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_t *event)
 {
 	rtgui_textbox_t *box = RTGUI_TEXTBOX(widget);
 

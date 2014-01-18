@@ -100,6 +100,7 @@ rt_err_t rtgui_textbox_set_line_length(struct rtgui_textbox *box, rt_size_t leng
 void rtgui_textbox_get_edit_rect(struct rtgui_textbox *box, rtgui_rect_t *rect);
 
 void rtgui_textbox_ondraw(rtgui_textbox_t *box);
+rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_t *event);
 #ifdef __cplusplus
 }
 #endif
