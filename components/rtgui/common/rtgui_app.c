@@ -183,13 +183,17 @@ rt_inline rt_bool_t _rtgui_application_dest_handle(
     struct rtgui_event *event)
 {
     struct rtgui_event_win *wevent = (struct rtgui_event_win *)event;
+    struct rtgui_object *dest_object;
 
-    struct rtgui_object *dest_object = RTGUI_OBJECT(wevent->wid);
+	/* this window has been closed. */
+	if (wevent->wid != RT_NULL && wevent->wid->flag & RTGUI_WIN_FLAG_CLOSED)
+		return RT_TRUE;
 
+	dest_object = RTGUI_OBJECT(wevent->wid);
     if (dest_object != RT_NULL)
     {
         if (dest_object->event_handler != RT_NULL)
-            return dest_object->event_handler(RTGUI_OBJECT(dest_object), event);
+            return dest_object->event_handler(dest_object, event);
         else
             return RT_FALSE;
     }

@@ -19,7 +19,7 @@ const rtgui_color_t blue    = RTGUI_RGB(0x00, 0x00, 0xff);
 const rtgui_color_t black   = RTGUI_RGB(0x00, 0x00, 0x00);
 const rtgui_color_t white   = RTGUI_RGB(0xff, 0xff, 0xff);
 
-const rtgui_color_t high_light  = RTGUI_RGB(0xff, 0xff, 0xff);
+const rtgui_color_t high_light  = RTGUI_RGB(0xfc, 0xfc, 0xfc);
 const rtgui_color_t dark_grey   = RTGUI_RGB(0x7f, 0x7f, 0x7f);
 const rtgui_color_t light_grey  = RTGUI_RGB(0xc0, 0xc0, 0xc0);
 

@@ -49,7 +49,6 @@ rt_bool_t rtgui_panel_event_handler(struct rtgui_object *object, struct rtgui_ev
         if (dc == RT_NULL) return RT_FALSE;
 
         rtgui_dc_fill_rect(dc, &rect);
-        // rtgui_rect_inflate(&rect, RTGUI_WIDGET(panel)->);
         rtgui_dc_draw_border(dc, &rect, panel->border_style);
 
         /* paint on each child */

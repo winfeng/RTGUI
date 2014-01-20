@@ -544,10 +544,10 @@ rt_bool_t rtgui_widget_event_handler(struct rtgui_object *object, rtgui_event_t 
         break;
 #endif
     default:
-        return rtgui_object_event_handler(object, event);
+		break;
     }
 
-    return RT_FALSE;
+    return rtgui_object_event_handler(object, event);
 }
 RTM_EXPORT(rtgui_widget_event_handler);
 

@@ -87,6 +87,7 @@ rt_bool_t rtgui_iconbox_event_handler(struct rtgui_object *object, struct rtgui_
 
     return RT_FALSE;
 }
+RTM_EXPORT(rtgui_iconbox_event_handler);
 
 struct rtgui_iconbox *rtgui_iconbox_create(struct rtgui_image *image,
         const char *text,
@@ -134,11 +135,13 @@ struct rtgui_iconbox *rtgui_iconbox_create(struct rtgui_image *image,
 
     return iconbox;
 }
+RTM_EXPORT(rtgui_iconbox_create);
 
 void rtgui_iconbox_destroy(struct rtgui_iconbox *iconbox)
 {
     rtgui_widget_destroy(RTGUI_WIDGET(iconbox));
 }
+RTM_EXPORT(rtgui_iconbox_destroy);
 
 void rtgui_iconbox_set_text_position(struct rtgui_iconbox *iconbox, int position)
 {
@@ -177,6 +180,7 @@ void rtgui_iconbox_set_text_position(struct rtgui_iconbox *iconbox, int position
         }
     }
 }
+RTM_EXPORT(rtgui_iconbox_set_text_position);
 
 void rtgui_iconbox_set_selected(struct rtgui_iconbox *iconbox, rt_bool_t selected)
 {
@@ -184,3 +188,5 @@ void rtgui_iconbox_set_selected(struct rtgui_iconbox *iconbox, rt_bool_t selecte
 
     iconbox->selected = selected;
 }
+RTM_EXPORT(rtgui_iconbox_set_selected);
+

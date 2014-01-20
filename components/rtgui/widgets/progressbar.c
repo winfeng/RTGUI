@@ -44,6 +44,7 @@ rt_bool_t rtgui_progressbar_event_handler(struct rtgui_object *object,
 
     return RT_FALSE;
 }
+RTM_EXPORT(rtgui_progressbar_event_handler);
 
 struct rtgui_progressbar *rtgui_progressbar_create(int orientation, int range,
         rtgui_rect_t *r)
@@ -62,11 +63,13 @@ struct rtgui_progressbar *rtgui_progressbar_create(int orientation, int range,
 
     return bar;
 }
-
+RTM_EXPORT(rtgui_progressbar_create);
+	
 void rtgui_progressbar_destroy(struct rtgui_progressbar *bar)
 {
     rtgui_widget_destroy(RTGUI_WIDGET(bar));
 }
+RTM_EXPORT(rtgui_progressbar_destroy);
 
 void rtgui_progressbar_set_value(struct rtgui_progressbar *bar, int value)
 {
@@ -79,6 +82,7 @@ void rtgui_progressbar_set_value(struct rtgui_progressbar *bar, int value)
     rtgui_theme_draw_progressbar(bar);
     return;
 }
+RTM_EXPORT(rtgui_progressbar_set_value);
 
 int rtgui_progressbar_get_value(struct rtgui_progressbar *bar)
 {
@@ -86,6 +90,7 @@ int rtgui_progressbar_get_value(struct rtgui_progressbar *bar)
 
     return bar->position;
 }
+RTM_EXPORT(rtgui_progressbar_get_value);
 
 void rtgui_progressbar_set_range(struct rtgui_progressbar *bar, int range)
 {
@@ -96,6 +101,7 @@ void rtgui_progressbar_set_range(struct rtgui_progressbar *bar, int range)
     rtgui_theme_draw_progressbar(bar);
     return;
 }
+RTM_EXPORT(rtgui_progressbar_set_range);
 
 int rtgui_progressbar_get_range(struct rtgui_progressbar *bar)
 {
@@ -103,4 +109,5 @@ int rtgui_progressbar_get_range(struct rtgui_progressbar *bar)
 
     return bar->range;
 }
+RTM_EXPORT(rtgui_progressbar_get_range);
 
