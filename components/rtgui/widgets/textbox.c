@@ -761,26 +761,36 @@ void rtgui_textbox_ondraw(rtgui_textbox_t *box)
 /* set textbox text */
 void rtgui_textbox_set_value(rtgui_textbox_t *box, const char *text)
 {
-	if (box->text != RT_NULL)
-	{
-		/* yet exist something */
-		/* free the old text */
-		rtgui_free(box->text);
-		box->text = RT_NULL;
-	}
+    /* Hide the caret first. */
+    box->flag &= ~RTGUI_TEXTBOX_CARET_SHOW;
+    rtgui_textbox_draw_caret(box, box->position);
 
-	/* no something */
-	box->line_length = ((rt_strlen(text) + 1) / RTGUI_TEXTBOX_LINE_MAX + 1) * RTGUI_TEXTBOX_LINE_MAX;
+    if (box->text != RT_NULL)
+    {
+        /* yet exist something */
+        /* free the old text */
+        rtgui_free(box->text);
+        box->text = RT_NULL;
+    }
 
-	/* allocate line buffer */
-	box->text = rtgui_malloc(box->line_length+1);
-	rt_memset(box->text, 0, box->line_length+1);
+    /* no something */
+    box->line_length = ((rt_strlen(text) + 1) / RTGUI_TEXTBOX_LINE_MAX + 1) * RTGUI_TEXTBOX_LINE_MAX;
 
-	/* copy text */
-	rt_memcpy(box->text, text, rt_strlen(text) + 1);
+    /* allocate line buffer */
+    box->text = rtgui_malloc(box->line_length+1);
+    rt_memset(box->text, 0, box->line_length+1);
 
-	/* set current position */
-	box->position = rt_strlen(text);
+    /* copy text */
+    rt_memcpy(box->text, text, rt_strlen(text) + 1);
+
+    /* set current position */
+    box->position = rt_strlen(text);
+
+    /* Reset the caret to get the pixel buffer right. */
+    rtgui_textbox_init_caret(box, box->position);
+    /* Than show it. */
+    box->flag |= RTGUI_TEXTBOX_CARET_SHOW;
+    rtgui_textbox_draw_caret(box, box->position);
 }
 
 const char *rtgui_textbox_get_value(rtgui_textbox_t *box)
