@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-    DECLARE_CLASS_TYPE(edit);
+DECLARE_CLASS_TYPE(edit);
 
     /** Gets the type of a edit */
 #define RTGUI_EDIT_TYPE       (RTGUI_TYPE(edit))
@@ -30,15 +30,18 @@ extern "C" {
     /** Checks if the object is a rtgui_edit */
 #define RTGUI_IS_EDIT(obj)    (RTGUI_OBJECT_CHECK_TYPE((obj), RTGUI_EDIT_TYPE))
 
-#define RTGUI_EDIT_NONE             0x00
-#define RTGUI_EDIT_CARET            0x01
-#define RTGUI_EDIT_VSCROLL          0x02
-#define RTGUI_EDIT_HSCROLL          0x04
-#define RTGUI_EDIT_SHIFT            0x10
-#define RTGUI_EDIT_CTRL             0x20
-#define RTGUI_EDIT_ALT              0x40
-#define RTGUI_EDIT_CAPSLOCK         0x80
-#define RTGUI_EDIT_NUMLOCK          0x100
+enum rtgui_edit_flag
+{
+    RTGUI_EDIT_NONE     = 0x00,
+    RTGUI_EDIT_CARET    = 0x01,
+    RTGUI_EDIT_VSCROLL  = 0x02,
+    RTGUI_EDIT_HSCROLL  = 0x04,
+    RTGUI_EDIT_SHIFT    = 0x10,
+    RTGUI_EDIT_CTRL     = 0x20,
+    RTGUI_EDIT_ALT      = 0x40,
+    RTGUI_EDIT_CAPSLOCK = 0x80,
+    RTGUI_EDIT_NUMLOCK  = 0x100,
+};
 
     struct edit_update
     {
@@ -50,18 +53,21 @@ extern "C" {
     {
         rt_int16_t  zsize; /* zone size */
         rt_int16_t  len;
+        /* Line counting from zero. */
+        rt_uint32_t line_number;
         struct edit_line *prev;
         struct edit_line *next;
         char        *text;
+        void *user_data;
     };
 
     struct rtgui_edit
     {
         /* inherit from container */
-        rtgui_container_t parent;
+        rtgui_widget_t parent;
 
         /* edit flag */
-        rt_uint32_t   flag;
+        enum rtgui_edit_flag flag;
         rt_int16_t    max_rows, max_cols;
         rt_int16_t    row_per_page, col_per_page;
         rtgui_point_t upleft;
@@ -76,12 +82,10 @@ extern "C" {
         rtgui_color_t *caret;
         rtgui_rect_t  caret_rect;
         struct edit_update update;
-        char          *update_buf; /* speed up renewal process */
-        struct rtgui_dc *dbl_buf;
 
         struct edit_line  *head;
-        struct edit_line  *tail;
-        struct edit_line  *first_line;
+
+        void (*on_delete_line)(struct rtgui_edit *edit, struct edit_line *line);
 #ifdef RTGUI_EDIT_USING_SCROLL
         struct rtgui_scrollbar *hscroll;
         struct rtgui_scrollbar *vscroll;
@@ -98,16 +102,19 @@ extern "C" {
 
     struct rtgui_edit *rtgui_edit_create(struct rtgui_container *container, int left, int top, int w, int h);
     void rtgui_edit_destroy(struct rtgui_edit *edit);
-    void rtgui_edit_update(struct rtgui_edit *edit);
     void rtgui_edit_ondraw(struct rtgui_edit *edit);
     rt_bool_t rtgui_edit_event_handler(struct rtgui_object *object, rtgui_event_t *event);
+    void rtgui_edit_clear_text(struct rtgui_edit *edit);
     void rtgui_edit_set_text(struct rtgui_edit *edit, const char *text);
     rtgui_point_t rtgui_edit_get_current_point(struct rtgui_edit *edit);
     rt_uint32_t rtgui_edit_get_mem_consume(struct rtgui_edit *edit);
     rt_bool_t rtgui_edit_readin_file(struct rtgui_edit *edit, const char *filename);
     rt_bool_t rtgui_edit_saveas_file(struct rtgui_edit *edit, const char *filename);
     struct edit_line *rtgui_edit_get_line_by_index(struct rtgui_edit *edit, rt_uint32_t index);
-	rt_uint32_t rtgui_edit_get_index_by_line(struct rtgui_edit *edit, struct edit_line *line);
+	rt_int32_t rtgui_edit_get_index_by_line(struct rtgui_edit *edit, struct edit_line *line);
+void rtgui_edit_set_ondelete_line(struct rtgui_edit *edit, void (*)(struct rtgui_edit*, struct edit_line*));
+
+void rtgui_edit_dump(struct rtgui_edit *edit);
 #ifdef __cplusplus
 }
 #endif
