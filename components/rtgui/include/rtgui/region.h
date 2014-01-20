@@ -88,7 +88,7 @@ int rtgui_region_is_flat(rtgui_region_t *region);
 extern rtgui_rect_t rtgui_empty_rect;
 
 void rtgui_rect_moveto(rtgui_rect_t *rect, int x, int y);
-void rtgui_rect_moveto_align(rtgui_rect_t *rect, rtgui_rect_t *to, int align);
+void rtgui_rect_moveto_align(const rtgui_rect_t *rect, rtgui_rect_t *to, int align);
 void rtgui_rect_inflate(rtgui_rect_t *rect, int d);
 void rtgui_rect_intersect(rtgui_rect_t *src, rtgui_rect_t *dest);
 int  rtgui_rect_contains_point(const rtgui_rect_t *rect, int x, int y);

@@ -2157,7 +2157,7 @@ void rtgui_rect_moveto(rtgui_rect_t *rect, int x, int y)
     rect->y2 += y;
 }
 
-void rtgui_rect_moveto_align(rtgui_rect_t *rect, rtgui_rect_t *to, int align)
+void rtgui_rect_moveto_align(const rtgui_rect_t *rect, rtgui_rect_t *to, int align)
 {
     int dw, dh;
     dw = 0;
