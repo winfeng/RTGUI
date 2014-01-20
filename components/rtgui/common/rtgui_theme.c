@@ -187,11 +187,11 @@ void rtgui_theme_draw_button(rtgui_button_t *btn)
     bc = RTGUI_WIDGET_BACKGROUND(btn);
     fc = RTGUI_WIDGET_FOREGROUND(btn);
 
+	/* fill button rect with background color */
+	rtgui_dc_fill_rect(dc, &rect);
+
     if (btn->flag & RTGUI_BUTTON_FLAG_PRESS)
     {
-        /* fill button rect with background color */
-        rtgui_dc_fill_rect(dc, &rect);
-
         if (btn->pressed_image != RT_NULL)
         {
             rtgui_rect_t image_rect;
@@ -210,9 +210,6 @@ void rtgui_theme_draw_button(rtgui_button_t *btn)
     }
     else
     {
-        /* fill button rect with background color */
-        rtgui_dc_fill_rect(dc, &rect);
-
         if (btn->unpressed_image != RT_NULL)
         {
             rtgui_rect_t image_rect;
@@ -249,11 +246,31 @@ void rtgui_theme_draw_button(rtgui_button_t *btn)
         /* re-set foreground and get default rect */
         rtgui_widget_get_rect(RTGUI_WIDGET(btn), &rect);
 
-        /* remove border */
-        rtgui_rect_inflate(&rect, -2);
+		/* remove border */
+		rtgui_rect_inflate(&rect, -2);
 
-        /* draw text */
-        rtgui_dc_draw_text(dc, rtgui_label_get_text(RTGUI_LABEL(btn)), &rect);
+		if (!RTGUI_WIDGET_IS_ENABLE(btn))
+		{
+			/* draw disable text */
+			RTGUI_WIDGET_FOREGROUND(btn) = white;
+			rtgui_rect_moveto(&rect, 1, 1);
+	        rtgui_dc_draw_text(dc, rtgui_label_get_text(RTGUI_LABEL(btn)), &rect);
+
+			RTGUI_WIDGET_FOREGROUND(btn) = dark_grey;
+			rtgui_rect_moveto(&rect, -1, -1);
+	        rtgui_dc_draw_text(dc, rtgui_label_get_text(RTGUI_LABEL(btn)), &rect);
+
+			/* restore foreground color */
+		    RTGUI_WIDGET_FOREGROUND(btn) = fc;
+		}
+		else
+		{
+	        /* remove border */
+	        rtgui_rect_inflate(&rect, -2);
+
+	        /* draw text */
+	        rtgui_dc_draw_text(dc, rtgui_label_get_text(RTGUI_LABEL(btn)), &rect);
+		}
     }
 
     /* end drawing */

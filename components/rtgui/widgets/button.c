@@ -79,7 +79,7 @@ rt_bool_t rtgui_button_event_handler(struct rtgui_object *object, struct rtgui_e
     {
         struct rtgui_event_kbd *ekbd = (struct rtgui_event_kbd *) event;
 
-        if (RTGUI_WIDGET_IS_HIDE(widget)) return RT_FALSE;
+        if (RTGUI_WIDGET_IS_HIDE(widget) || !RTGUI_WIDGET_IS_ENABLE(widget)) return RT_FALSE;
         if ((ekbd->key == RTGUIK_RETURN) || (ekbd->key == RTGUIK_SPACE))
         {
             if (RTGUI_KBD_IS_DOWN(ekbd))
@@ -94,7 +94,7 @@ rt_bool_t rtgui_button_event_handler(struct rtgui_object *object, struct rtgui_e
             /* draw button */
             rtgui_theme_draw_button(btn);
 
-            if ((btn->flag & RTGUI_BUTTON_FLAG_PRESS) && (btn->on_button != RT_NULL))
+            if (!(btn->flag & RTGUI_BUTTON_FLAG_PRESS) && (btn->on_button != RT_NULL))
             {
                 /* call on button handler */
                 btn->on_button(RTGUI_OBJECT(widget), event);
@@ -120,6 +120,9 @@ rt_bool_t rtgui_button_event_handler(struct rtgui_object *object, struct rtgui_e
                 break;
             }
 
+			/* widget disable */
+			if (!RTGUI_WIDGET_IS_ENABLE(widget)) return RT_FALSE;
+
             if (btn->flag & RTGUI_BUTTON_TYPE_PUSH)
             {
                 if (!(emouse->button & RTGUI_MOUSE_BUTTON_UP))
@@ -142,13 +145,6 @@ rt_bool_t rtgui_button_event_handler(struct rtgui_object *object, struct rtgui_e
                     /* call on button handler */
                     btn->on_button(RTGUI_OBJECT(widget), event);
                 }
-
-#ifndef RTGUI_USING_SMALL_SIZE
-                /* invokes call back */
-                if (widget->on_mouseclick != RT_NULL &&
-                        emouse->button & RTGUI_MOUSE_BUTTON_UP)
-                    return widget->on_mouseclick(RTGUI_OBJECT(widget), event);
-#endif
             }
             else
             {
@@ -195,10 +191,6 @@ rt_bool_t rtgui_button_event_handler(struct rtgui_object *object, struct rtgui_e
                 {
                     if (btn->on_button)
                         btn->on_button(RTGUI_OBJECT(widget), event);
-#ifndef RTGUI_USING_SMALL_SIZE
-                    if (widget->on_mouseclick)
-                        return widget->on_mouseclick(RTGUI_OBJECT(widget), event);
-#endif
                 }
             }
 
