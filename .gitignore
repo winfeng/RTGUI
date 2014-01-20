@@ -9,4 +9,10 @@ build/
 executables/
 *.pdb
 *.idb
+*.ncb
+*.suo
 vcproj
+
+Debug/
+_UpgradeReport_Files/
+UpgradeLog.XML
