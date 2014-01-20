@@ -223,8 +223,15 @@ static void rtgui_dc_hw_draw_point(struct rtgui_dc *self, int x, int y)
     RT_ASSERT(self != RT_NULL);
     dc = (struct rtgui_dc_hw *) self;
 
+    if (x < 0 || y < 0)
+        return;
+
     x = x + dc->owner->extent.x1;
+    if (x > dc->owner->extent.x2)
+        return;
     y = y + dc->owner->extent.y1;
+    if (y > dc->owner->extent.y2)
+        return;
 
     /* draw this point */
     dc->hw_driver->ops->set_pixel(&(dc->owner->gc.foreground), x, y);
@@ -237,8 +244,15 @@ static void rtgui_dc_hw_draw_color_point(struct rtgui_dc *self, int x, int y, rt
     RT_ASSERT(self != RT_NULL);
     dc = (struct rtgui_dc_hw *) self;
 
+    if (x < 0 || y < 0)
+        return;
+
     x = x + dc->owner->extent.x1;
+    if (x > dc->owner->extent.x2)
+        return;
     y = y + dc->owner->extent.y1;
+    if (y > dc->owner->extent.y2)
+        return;
 
     /* draw this point */
     dc->hw_driver->ops->set_pixel(&color, x, y);
@@ -254,10 +268,24 @@ static void rtgui_dc_hw_draw_vline(struct rtgui_dc *self, int x, int y1, int y2)
     RT_ASSERT(self != RT_NULL);
     dc = (struct rtgui_dc_hw *) self;
 
+    if (x < 0)
+        return;
     x = x + dc->owner->extent.x1;
+    if (x > dc->owner->extent.x2)
+        return;
     y1 = y1 + dc->owner->extent.y1;
     y2 = y2 + dc->owner->extent.y1;
-    if (y1 > y2) _int_swap(y1, y2);
+
+    if (y1 > y2)
+        _int_swap(y1, y2);
+    if (y1 > dc->owner->extent.y2 || y2 < dc->owner->extent.y1)
+        return;
+
+    if (y1 < dc->owner->extent.y1)
+        y1 = dc->owner->extent.y1;
+    if (y2 > dc->owner->extent.y2)
+        y2 = dc->owner->extent.y2;
+
 
     /* draw vline */
     dc->hw_driver->ops->draw_vline(&(dc->owner->gc.foreground), x, y1, y2);
@@ -273,11 +301,24 @@ static void rtgui_dc_hw_draw_hline(struct rtgui_dc *self, int x1, int x2, int y)
     RT_ASSERT(self != RT_NULL);
     dc = (struct rtgui_dc_hw *) self;
 
+    if (y < 0)
+        return;
+    y = y + dc->owner->extent.y1;
+    if (y > dc->owner->extent.y2)
+        return;
+
     /* convert logic to device */
     x1 = x1 + dc->owner->extent.x1;
     x2 = x2 + dc->owner->extent.x1;
-    if (x1 > x2) _int_swap(x1, x2);
-    y  = y + dc->owner->extent.y1;
+    if (x1 > x2)
+        _int_swap(x1, x2);
+    if (x1 > dc->owner->extent.x2 || x2 < dc->owner->extent.x1)
+        return;
+
+    if (x1 < dc->owner->extent.x1)
+        x1 = dc->owner->extent.x1;
+    if (x2 > dc->owner->extent.x2)
+        x2 = dc->owner->extent.x2;
 
     /* draw hline */
     dc->hw_driver->ops->draw_hline(&(dc->owner->gc.foreground), x1, x2, y);
@@ -286,7 +327,7 @@ static void rtgui_dc_hw_draw_hline(struct rtgui_dc *self, int x1, int x2, int y)
 static void rtgui_dc_hw_fill_rect(struct rtgui_dc *self, struct rtgui_rect *rect)
 {
     rtgui_color_t color;
-    register rt_base_t index, x1, x2;
+    register rt_base_t y1, y2, x1, x2;
     struct rtgui_dc_hw *dc;
 
     RT_ASSERT(self != RT_NULL);
@@ -294,14 +335,34 @@ static void rtgui_dc_hw_fill_rect(struct rtgui_dc *self, struct rtgui_rect *rect
 
     /* get background color */
     color = dc->owner->gc.background;
+
     /* convert logic to device */
     x1 = rect->x1 + dc->owner->extent.x1;
+    if (x1 > dc->owner->extent.x2)
+        return;
+    if (x1 < dc->owner->extent.x1)
+        x1 = dc->owner->extent.x1;
     x2 = rect->x2 + dc->owner->extent.x1;
+    if (x2 < dc->owner->extent.x1)
+        return;
+    if (x2 > dc->owner->extent.x2)
+        x2 = dc->owner->extent.x2;
+
+    y1 = rect->y1 + dc->owner->extent.y1;
+    if (y1 > dc->owner->extent.y2)
+        return;
+    if (y1 < dc->owner->extent.y1)
+        y1 = dc->owner->extent.y1;
+    y2 = rect->y2 + dc->owner->extent.y1;
+    if (y2 < dc->owner->extent.y1)
+        return;
+    if (y2 > dc->owner->extent.y2)
+        y2 = dc->owner->extent.y2;
 
     /* fill rect */
-    for (index = dc->owner->extent.y1 + rect->y1; index < dc->owner->extent.y1 + rect->y2; index ++)
+    for (; y1 < y2; y1++)
     {
-        dc->hw_driver->ops->draw_hline(&color, x1, x2, index);
+        dc->hw_driver->ops->draw_hline(&color, x1, x2, y1);
     }
 }
 
@@ -313,15 +374,31 @@ static void rtgui_dc_hw_blit_line(struct rtgui_dc *self, int x1, int x2, int y, 
     dc = (struct rtgui_dc_hw *) self;
 
     /* convert logic to device */
+    if (y < 0)
+        return;
+    y = y + dc->owner->extent.y1;
+    if (y > dc->owner->extent.y2)
+        return;
+
     x1 = x1 + dc->owner->extent.x1;
     x2 = x2 + dc->owner->extent.x1;
-    if (x1 > x2) _int_swap(x1, x2);
-    y  = y + dc->owner->extent.y1;
+    if (x1 > x2)
+        _int_swap(x1, x2);
+
+    if (x1 > dc->owner->extent.x2 || x2 < dc->owner->extent.x1)
+        return;
+    if (x1 < dc->owner->extent.x1)
+        x1 = dc->owner->extent.x1;
+    if (x2 > dc->owner->extent.x2)
+        x2 = dc->owner->extent.x2;
 
     dc->hw_driver->ops->draw_raw_hline(line_data, x1, x2, y);
 }
 
-static void rtgui_dc_hw_blit(struct rtgui_dc *dc, struct rtgui_point *dc_point, struct rtgui_dc *dest, rtgui_rect_t *rect)
+static void rtgui_dc_hw_blit(struct rtgui_dc *dc,
+                             struct rtgui_point *dc_point,
+                             struct rtgui_dc *dest,
+                             rtgui_rect_t *rect)
 {
     /* not blit in hardware dc */
     return ;
