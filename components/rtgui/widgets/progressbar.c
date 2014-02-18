@@ -64,7 +64,7 @@ struct rtgui_progressbar *rtgui_progressbar_create(int orientation, int range,
     return bar;
 }
 RTM_EXPORT(rtgui_progressbar_create);
-	
+
 void rtgui_progressbar_destroy(struct rtgui_progressbar *bar)
 {
     rtgui_widget_destroy(RTGUI_WIDGET(bar));
