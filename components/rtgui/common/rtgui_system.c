@@ -33,23 +33,17 @@ int rtgui_system_server_init(void)
 {
     rt_mutex_init(&_screen_lock, "screen", RT_IPC_FLAG_FIFO);
 
-    /* the graphic device driver must be set before initialization */
-    RT_ASSERT(rtgui_graphic_driver_get_default() != RT_NULL);
-
     /* init image */
     rtgui_system_image_init();
     /* init font */
     rtgui_font_system_init();
 
-    /* set the rect of main window to full screen */
-    rtgui_graphic_driver_get_rect(rtgui_graphic_driver_get_default(), &_mainwin_rect);
-
     /* init rtgui server */
     rtgui_topwin_init();
     rtgui_server_init();
 
-	/* use driver rect for main window */
-	rtgui_graphic_driver_get_rect(rtgui_graphic_driver_get_default(), &_mainwin_rect);
+    /* use driver rect for main window */
+    rtgui_graphic_driver_get_rect(rtgui_graphic_driver_get_default(), &_mainwin_rect);
 
     /* init theme */
     rtgui_system_theme_init();
