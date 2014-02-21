@@ -1,4 +1,6 @@
 #include <rtthread.h>
+#include <finsh.h>
+
 #include <rtgui/rtgui.h>
 #include <rtgui/rtgui_app.h>
 #include <rtgui/widgets/container.h>
@@ -9,23 +11,24 @@
 #include <rtgui/image.h>
 #include <rtgui/widgets/edit.h>
 
-#define  LOGO_PATH "/logo/"
 static	struct rtgui_edit *edit;
 struct rtgui_win *win1;
-	rtgui_win_t *msgwin;
-void WarnWindowCreat(const char *title, rtgui_win_t **thiswin);
 
-
-
-extern struct edit_line *rtgui_edit_get_line_by_index(struct rtgui_edit *, rt_uint32_t );
 static void button_click(struct rtgui_object *object, struct rtgui_event *event)
 {
-	struct edit_line *line = rtgui_edit_get_line_by_index(edit,rtgui_edit_get_current_point(edit).y);
+    rt_int32_t idx;
+	struct edit_line *line;
 
-    rtgui_edit_append_line(edit,"11111111111");
-    rtgui_edit_insert_line(edit,line,"2222222222222");
-	rtgui_edit_delete_line(edit,line);
-	rtgui_widget_update(RTGUI_WIDGET(edit));
+    //rtgui_edit_append_line(edit,"11111111111");
+    line = rtgui_edit_get_line_by_index(edit, rtgui_edit_get_current_point(edit).y);
+    idx = rtgui_edit_get_index_by_line(edit, line);
+    RT_ASSERT(idx == rtgui_edit_get_current_point(edit).y);
+    for (; idx >= 0; idx--)
+    {
+        rt_kprintf("D %d\n", idx);
+        rtgui_edit_delete_line(edit, rtgui_edit_get_line_by_index(edit, idx));
+    }
+    //rtgui_edit_insert_line(edit,line,"2222222222222");
 }
 
 static void button1_click(struct rtgui_object *object, struct rtgui_event *event)
@@ -36,31 +39,23 @@ static void button1_click(struct rtgui_object *object, struct rtgui_event *event
     rtgui_edit_insert_line(edit,line,"2222222222222");
     rtgui_edit_delete_line(edit,line);
 	rtgui_edit_set_text(edit,
-                        "1Ò»¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒúÃ®³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»\n"
-                        "Ò»2¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒúÃ®³½ËÈÎç\n"
-                        "3Ò»¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒúÃ®12345678³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»¶þÈýËÄÎå\n"
-                        "Ò»4¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒúÃ®³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»¶þÈý\n"
+                        "1Ò»¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»\n"
+                        "Ò»2¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú³½ËÈÎç\n"
+                        "3Ò»¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú12345678³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»¶þÈýËÄÎå\n"
+                        "Ò»4¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú³½ËÈÎçÎ´ÉêÓÏÐçº¥Ò»¶þÈý\n"
                         "1234567890123456789012345678901234567890ËÄÎåÁù12345678¼×ÒÒ±û¶¡Îì¼º¸ýÐÁ\n"
                         "5Ò»¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×abc\n"
-                        "Ò»6¶þÈýËÄÎåÁùÆß°Ë¾ÅÊ®¼×ÒÒ±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú\n"
+                        "Ò»6¶þÈýËÄÎåÁùÆß¡£¾Å¡¢¼×£¬±û¶¡Îì¼º¸ýÐÁÈÉ¹ï×Ó³óÒú\n"
                         "7Ò»¶þÈýËÄÎåÁùassault¼×ÒÒ±û¶¡Îì¼º¸ýÐÁ\n"
                         "Ò»8¶þÈý\n"
                         "9Ò»¶þÈýËÄÎåÁù12345678¼×ÒÒ±û¶¡Îì¼º¸ýÐÁ\n");
-	rtgui_edit_append_line(edit,"11111111111");
-	rtgui_widget_update(RTGUI_WIDGET(edit));
+	//rtgui_edit_append_line(edit,"11111111111");
+	//rtgui_widget_update(RTGUI_WIDGET(edit));
 }
 static void button2_click(struct rtgui_object *object, struct rtgui_event *event)
 {
-	struct edit_line *line = rtgui_edit_get_line_by_index(edit,rtgui_edit_get_current_point(edit).y);
-
-	rtgui_edit_append_line(edit,"11111111111");
-	rtgui_edit_insert_line(edit,line,"2222222222222");
-	rtgui_edit_set_text(edit,"");
-	rtgui_edit_append_line(edit,"11111111111");
-	rtgui_edit_delete_line(edit,line);
-	rtgui_widget_update(RTGUI_WIDGET(edit));
+	rtgui_edit_set_text(edit, "");
 }
-
 
 void edit_print_test(void)
 {
@@ -73,71 +68,76 @@ void edit_print_test(void)
 #undef P
 }
 
-/**
-* @function name :win1_ui_init()
-* @param : void
-* @return : void
-* @note :the init function of win1
-**/
+static void _dump_delete(struct rtgui_edit *edit, struct edit_line *line)
+{
+    rt_kprintf("deleting %d: %s\n", line->line_number, line->text);
+}
+
 void win1_ui_init(void)
 {
-    //struct rtgui_win *input_win;
     rtgui_rect_t rect = {0, 0, 480, 272};
-	rtgui_rect_t input_rect={0,150,480,272};
 
-	struct rtgui_button *button,*button1,*button2;
+    struct rtgui_button *button,*button1,*button2;
 
-//win1 Create
     {
-		win1 = rtgui_win_create(RT_NULL, "win1",&rect, RTGUI_WIN_STYLE_MAINWIN | RTGUI_WIN_STYLE_NO_BORDER | RTGUI_WIN_STYLE_NO_TITLE);
-		//input_win=rtgui_win_create(win1,"input",&input_rect,RTGUI_WIN_STYLE_ONTOP | RTGUI_WIN_STYLE_NO_BORDER | RTGUI_WIN_STYLE_NO_TITLE);
-		//rtgui_object_set_event_handler(RTGUI_OBJECT(input_win), input_event_handler);
-		//RTGUI_WIDGET_BACKGROUND(win1)=RTGUI_RGB(0,0,0);
+        win1 = rtgui_win_create(RT_NULL, "win1", &rect, RTGUI_WIN_STYLE_MAINWIN
+                                | RTGUI_WIN_STYLE_NO_BORDER |
+                                RTGUI_WIN_STYLE_NO_TITLE);
     }
-	{
-		button=rtgui_button_create("abc");
-		rect.x1=50;
-		rect.x2=rect.x1+50;
-		rect.y1=240;
-		rect.y2=rect.y1+20;
-		rtgui_widget_set_rect(RTGUI_WIDGET(button),&rect);
-		rtgui_button_set_onbutton(button,button_click);
-		RTGUI_WIDGET_FLAG(button)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
-		rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button));
+    {
+        button=rtgui_button_create("abc");
+        rect.x1=50;
+        rect.x2=rect.x1+50;
+        rect.y1=240;
+        rect.y2=rect.y1+20;
+        rtgui_widget_set_rect(RTGUI_WIDGET(button),&rect);
+        rtgui_button_set_onbutton(button,button_click);
+        RTGUI_WIDGET_FLAG(button)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
+        rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button));
 
-	}
-		{
-		button1=rtgui_button_create("abc");
-		rect.x1=150;
-		rect.x2=rect.x1+50;
-		rect.y1=240;
-		rect.y2=rect.y1+20;
-		rtgui_widget_set_rect(RTGUI_WIDGET(button1),&rect);
-		rtgui_button_set_onbutton(button1,button1_click);
-		RTGUI_WIDGET_FLAG(button1)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
-		
-		rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button1));
+    }
+    {
+        button1=rtgui_button_create("abc");
+        rect.x1=150;
+        rect.x2=rect.x1+50;
+        rect.y1=240;
+        rect.y2=rect.y1+20;
+        rtgui_widget_set_rect(RTGUI_WIDGET(button1),&rect);
+        rtgui_button_set_onbutton(button1,button1_click);
+        RTGUI_WIDGET_FLAG(button1)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
+        rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button1));
+    }
+    {
+        button2=rtgui_button_create("Çå¿Õ");
+        rect.x1=250;
+        rect.x2=rect.x1+50;
+        rect.y1=240;
+        rect.y2=rect.y1+20;
+        rtgui_widget_set_rect(RTGUI_WIDGET(button2),&rect);
+        rtgui_button_set_onbutton(button2,button2_click);
+        RTGUI_WIDGET_FLAG(button2)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
+        rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button2));
 
-	}
-	  {
-		button2=rtgui_button_create("abc");
-		rect.x1=250;
-		rect.x2=rect.x1+50;
-		rect.y1=240;
-		rect.y2=rect.y1+20;
-		rtgui_widget_set_rect(RTGUI_WIDGET(button2),&rect);
-		rtgui_button_set_onbutton(button2,button2_click);
-		RTGUI_WIDGET_FLAG(button2)&=~RTGUI_WIDGET_FLAG_FOCUSABLE;
-		rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button2));
-
-	}
-	{
-		edit=rtgui_edit_create(RTGUI_CONTAINER(win1),10,10,400,200);
-	
-	}
-	//rtgui_widget_focus(RTGUI_WIDGET(button1));
-
-
-
+    }
+    {
+        button2=rtgui_button_create("dummy");
+        rect.x1=350;
+        rect.x2=rect.x1+50;
+        rect.y1=240;
+        rect.y2=rect.y1+20;
+        rtgui_widget_set_rect(RTGUI_WIDGET(button2),&rect);
+        rtgui_container_add_child(RTGUI_CONTAINER(win1),RTGUI_WIDGET(button2));
+    }
+    {
+        edit=rtgui_edit_create(RTGUI_CONTAINER(win1),10,10,408,200);
+        rtgui_edit_set_ondelete_line(edit, _dump_delete);
+    }
     rtgui_win_show(win1, RT_TRUE);
 }
+
+int dump_edit(void)
+{
+    rtgui_edit_dump(edit);
+    return 0;
+}
+FINSH_FUNCTION_EXPORT(dump_edit, dump the edit);
