@@ -2,7 +2,6 @@
  * rockbox fnt font engine 
  */
 #include <rtgui/font_fnt.h>
-#include <dfs_posix.h>
 #include <rtgui/rtgui_system.h>
 
 static void rtgui_fnt_font_draw_text(struct rtgui_font *font, struct rtgui_dc *dc, const char *text, rt_ubase_t len, struct rtgui_rect *rect);
@@ -108,6 +107,8 @@ void rtgui_fnt_font_get_metrics(struct rtgui_font *font, const char *text, rtgui
 }
 
 #ifdef RTGUI_USING_FNT_FILE
+#include <dfs_posix.h>
+
 rt_inline int readbyte(int fd, unsigned char *cp)
 {
 	unsigned char buf[1];
