@@ -409,7 +409,7 @@ int strcasecmp(const char *s1, const char *s2)
 }
 #endif
 
-static int hex2int(char *str)
+static int hex2int(const char *str)
 {
     int i = 0;
     int r = 0;
@@ -459,6 +459,27 @@ static rt_bool_t rtgui_image_xpm_check(struct rtgui_filerw *file)
 #endif
 }
 
+static int _str2int(const char *str, int strlen, int *p)
+{
+    int i;
+
+    *p = 0;
+    /* Skip the leading chars. */
+    for (i = 0; i < strlen; i++)
+    {
+        if ('0' <= str[i] && str[i] <= '9')
+            break;
+    }
+
+    for (; i < strlen; i++)
+    {
+        if (str[i] < '0' || '9' < str[i])
+            break;
+        *p = (*p) * 10 + str[i] - '0';
+    }
+    return i;
+}
+
 static rt_bool_t rtgui_image_xpm_load(struct rtgui_image *image, struct rtgui_filerw *file, rt_bool_t load)
 {
     const char **xpm;
@@ -483,7 +504,12 @@ static rt_bool_t rtgui_image_xpm_load(struct rtgui_image *image, struct rtgui_fi
     image->engine = &rtgui_image_xpm_engine;
 
     /* parse xpm image */
-    sscanf(xpm[0], "%d %d %d %d", &w, &h, &colors, &colors_pp);
+    i = rt_strlen(xpm[0]);
+    /* Add one for the space. */
+    j = _str2int(xpm[0], i, &w) + 1;
+    j += _str2int(xpm[0] + j, i - j, &h) + 1;
+    j += _str2int(xpm[0] + j, i - j, &colors) + 1;
+    j += _str2int(xpm[0] + j, i - j, &colors_pp) + 1;
     image->w = w;
     image->h = h;
 
@@ -510,32 +536,22 @@ static rt_bool_t rtgui_image_xpm_load(struct rtgui_image *image, struct rtgui_fi
         /* build rtgui_color */
         if ((buf_tmp = strstr(buf, "c #")) != RT_NULL)
         {
-            char color_hex[10];
-
-            /* hexadecimal color value */
-            sscanf(buf_tmp, "c #%s", color_hex);
-
-            c = RTGUI_ARGB(0, hex2int(color_hex),
-                           hex2int(color_hex + 2),
-                           hex2int(color_hex + 4));
+            c = RTGUI_ARGB(0, hex2int(buf_tmp + 3),
+                           hex2int(buf_tmp + 5),
+                           hex2int(buf_tmp + 7));
         }
         else if ((buf_tmp = strstr(buf, "c ")) != RT_NULL)
         {
             int k;
 
-            /* color name */
-            char rgbname[30];
-
-            sscanf(buf_tmp, "c %s", rgbname);
-
-            if (strcasecmp(rgbname, "None") == 0)
+            if (strcasecmp(buf_tmp + 2, "None") == 0)
             {
                 goto color_none;
             }
 
             for (k = 0; k < 234; k++)
             {
-                if (strcasecmp(rgbname, rgbRecord[k].name) == 0)
+                if (strcasecmp(buf_tmp + 2, rgbRecord[k].name) == 0)
                 {
                     c = RTGUI_ARGB(0, rgbRecord[k].r,
                                    rgbRecord[k].g,
