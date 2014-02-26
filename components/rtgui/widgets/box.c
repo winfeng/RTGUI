@@ -66,26 +66,33 @@ static void rtgui_box_layout_vertical(struct rtgui_box *box, struct rtgui_rect *
 
     /* find spaces */
     space_count  = 0;
-    total_height = 0;
+    total_height = box->border_size;
     space_height = 0;
 
     rtgui_list_foreach(node, &(box->container->children))
     {
         rtgui_widget_t *widget = rtgui_list_entry(node, struct rtgui_widget, sibling);
-        if (widget->align & RTGUI_ALIGN_STRETCH) space_count ++;
-        else total_height += widget->min_height;
+        if (widget->align & RTGUI_ALIGN_STRETCH)
+        {
+            space_count ++;
+        }
+        else
+        {
+            total_height += widget->min_height;
+        }
+        total_height += box->border_size;
     }
 
     /* calculate the height for each spaces */
-    if (space_count != 0)
+    if (space_count != 0 && rtgui_rect_height(*extent) > total_height)
     {
-        space_height = (rtgui_rect_height(*extent) - total_height - (box->border_size << 1)) / space_count;
+        space_height = (rtgui_rect_height(*extent) - total_height) / space_count;
     }
 
     /* init (x, y) and box width */
     next_x = extent->x1 + box->border_size;
     next_y = extent->y1 + box->border_size;
-    box_width = rtgui_rect_width(*extent) - (box->border_size << 1);
+    box_width = rtgui_rect_width(*extent) - box->border_size*2;
 
     /* layout each widget */
     rtgui_list_foreach(node, &(box->container->children))
@@ -97,9 +104,7 @@ static void rtgui_box_layout_vertical(struct rtgui_box *box, struct rtgui_rect *
         rect = &(widget->extent);
 
         /* reset rect */
-        rtgui_rect_moveto(rect, -rect->x1, -rect->y1);
-        rect->x2 = widget->min_width;
-        rect->y2 = widget->min_height;
+        rtgui_rect_init(rect, 0, 0, widget->min_width, widget->min_height);
 
         /* left in default */
         rtgui_rect_moveto(rect, next_x, next_y);
