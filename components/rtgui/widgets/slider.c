@@ -99,45 +99,61 @@ static void rtgui_slider_onmouse(struct rtgui_slider *slider, struct rtgui_event
 
 static rt_bool_t rtgui_slider_onkey(struct rtgui_slider *slider, struct rtgui_event_kbd *event)
 {
+    rt_uint8_t ret = RT_FALSE;
+	rt_size_t val_old;
     RT_ASSERT(slider != RT_NULL);
     RT_ASSERT(event != RT_NULL);
 
+	val_old = slider->value;
     if (!(RTGUI_KBD_IS_UP(event)))
         return RT_TRUE;
-
+	
     if (slider->orient == RTGUI_HORIZONTAL)
     {
         if (event->key == RTGUIK_RIGHT)
         {
-            if (slider->value > slider->min)
+			if (slider->value < slider->max){
                 slider->value++;
+				
+			}
+			ret = RT_TRUE;
         }
         else if (event->key == RTGUIK_LEFT)
         {
-            if (slider->value < slider->max)
+			if (slider->value > slider->min){
                 slider->value--;
+				
+			}
+			ret = RT_TRUE;
         }
     }
     else
     {
         if (event->key == RTGUIK_UP)
         {
-            if (slider->value > slider->min)
-                slider->value--;
+           if (slider->value < slider->max){
+                slider->value++;
+				
+		   }
+		   ret = RT_TRUE;
         }
         else if (event->key == RTGUIK_DOWN)
         {
-            if (slider->value < slider->max)
-                slider->value++;
+           if (slider->value < slider->max){
+                slider->value++; 
+				
+		   }
+		   ret = RT_TRUE;
         }
     }
-
+	if( slider->value != val_old)
+	{
     /* update widget */
     rtgui_widget_update(RTGUI_WIDGET(slider));
     if (slider->on_changed != RT_NULL) /* invoke callback function */
         slider->on_changed(RTGUI_WIDGET(slider), RT_NULL);
-
-    return RT_TRUE;
+	}
+    return ret;
 }
 
 rt_bool_t rtgui_slider_event_handler(struct rtgui_object *object, struct rtgui_event *event)
