@@ -648,7 +648,7 @@ rt_bool_t rtgui_textbox_onfocus(struct rtgui_object *widget, rtgui_event_t *even
 	/* if there is already a timer, don't create another one. */
 	if (box->caret_timer == RT_NULL)
 	{
-		box->caret_timer = rtgui_timer_create(50, RT_TIMER_FLAG_PERIODIC, rtgui_textbox_timeout, box);
+		box->caret_timer = rtgui_timer_create(RT_TICK_PER_SECOND/5, RT_TIMER_FLAG_PERIODIC, rtgui_textbox_timeout, box);
 		/* set caret to show */
 		box->flag |= RTGUI_TEXTBOX_CARET_SHOW;
 		/* start caret timer */
